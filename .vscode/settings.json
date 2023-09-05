@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.i": "plaintext",
+        "memory": "cpp",
+        "charconv": "cpp",
+        "concepts": "cpp",
+        "type_traits": "cpp"
+    }
+}
