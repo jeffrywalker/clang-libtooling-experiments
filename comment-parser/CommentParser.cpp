@@ -18,6 +18,8 @@ using namespace llvm;
 using namespace clang;
 using namespace clang::ast_matchers;
 
+// #define _VERBOSE // will dump AST
+
 // Apply a custom category to all command-line options so that they are the
 // only ones displayed.
 static llvm::cl::OptionCategory MyToolCategory("my-tool options");
@@ -30,6 +32,41 @@ static cl::extrahelp CommonHelp(CommonOptionsParser::HelpMessage);
 // A help message for this specific tool can be added afterwards.
 static cl::extrahelp MoreHelp("\nMore help text...\n");
 
+/// traverses the children of comment. BlockCommandComment and ParagraphComment are recursive
+/// \param comment to be traversed
+/// \param context used to obtain command names
+void readComments(clang::comments::Comment* comment, ASTContext& context)
+{
+#if defined(_VERBOSE)
+    comment->dumpColor();
+#endif
+    for (comments::Comment::child_iterator I = comment->child_begin(), E = comment->child_end(); I != E; ++I)
+    {
+        if (comments::InlineCommandComment* IC = dyn_cast<comments::InlineCommandComment>(*I))
+        {
+            std::string cmd = context.getCommentCommandTraits().getCommandInfo(IC->getCommandID())->Name;
+            std::string value;
+            // obtain the value
+            comments::Comment::child_iterator _I = I;
+            ++_I;
+            if (comments::TextComment* TC = dyn_cast<comments::TextComment>(*_I))
+            {
+                value = TC->getText().str();
+            }
+            std::cout << cmd << " = " << value << "\n";
+        }
+        if (comments::BlockCommandComment* BC = dyn_cast<comments::BlockCommandComment>(*I))
+        {
+            std::string blockCmd = context.getCommentCommandTraits().getCommandInfo(BC->getCommandID())->Name;
+            readComments(BC, context);
+        }
+        if (comments::ParagraphComment* PC = dyn_cast<comments::ParagraphComment>(*I))
+        {
+            readComments(PC, context);
+        }
+    }
+}
+
 // https://stackoverflow.com/a/25103360
 DeclarationMatcher FieldDeclMatcher = clang::ast_matchers::fieldDecl().bind("field_decl");
 class LoopPrinter : public MatchFinder::MatchCallback
@@ -39,60 +76,20 @@ class LoopPrinter : public MatchFinder::MatchCallback
     {
         if (const clang::FieldDecl* fd = result.Nodes.getNodeAs<clang::FieldDecl>("field_decl"))
         {
-            std::cout << "======== FieldDecl found ======" << std::endl;
-
+            std::cout << "\n======== FieldDecl found ======\n";
             const clang::RecordDecl* rd = fd->getParent();
             const clang::QualType qt    = fd->getType();
             const clang::Type* t        = qt.getTypePtr();
-
-            // https://stackoverflow.com/a/25294210
-            // SourceManager& sm      = ctx.getSourceManager();
-            // const RawComment* rc   = fd->getASTContext().getRawCommentForDeclNoCache(fd);
-            // if (rc)
-            // {
-            //     // Found comment!
-            //     SourceRange range = rc->getSourceRange();
-
-            //     PresumedLoc startPos = sm.getPresumedLoc(range.getBegin());
-            //     PresumedLoc endPos   = sm.getPresumedLoc(range.getEnd());
-
-            //     std::string raw   = rc->getRawText(sm).str();
-            //     std::string brief = rc->getBriefText(ctx);
-            //     std::cout << "raw: " << raw << "\nbrief: " << brief << "\n";
-
-            //     // ... Do something with positions or comments
-            // }
+            std::cout << "found '" << fd->getQualifiedNameAsString() << " " << fd->getName().str() << "' in '"
+                      << rd->getName().str() << "' "
+                      << "is BuiltinType = " << t->isBuiltinType() << " " << std::endl
+                      << std::endl;
 
             ASTContext& context = fd->getASTContext();
             if (auto comment = context.getLocalCommentForDeclUncached(fd))
             {
-                comment->dumpColor();
-                // referencing ASTNodeTraverse.h line:259
-                int i = 0;
-                for (comments::Comment::child_iterator I = comment->child_begin(), E = comment->child_end(); I != E; ++I)
-                {
-                    if (comments::InlineCommandComment* IC = dyn_cast<comments::InlineCommandComment>(*I))
-                    {
-                        std::cout << "inline command comment\n";
-                        std::cout << IC->getCommentKindName() << "\n";
-                    }
-                    if (comments::BlockCommandComment* IC = dyn_cast<comments::BlockCommandComment>(*I))
-                    {
-                        std::cout << "block command comment: "
-                                  << context.getCommentCommandTraits().getCommandInfo(IC->getCommandID())->Name << "\n";
-                    }
-                    /// TODO need some recursion similar to the native dump command.
-                    /// The desired commands are nested in the ParagraphComments.
-
-                    std::cout << "iterating " << i << "\n";
-                    ++i;
-                }
+                readComments(comment, context);
             }
-
-            std::cout << "FieldDecl found '" << fd->getQualifiedNameAsString() << " " << fd->getName().str() << "' in '"
-                      << rd->getName().str() << "'. "
-                      << "is Builtintype = " << t->isBuiltinType() << " " << std::endl
-                      << std::endl;
         }
 
     }  // end of run()
