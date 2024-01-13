@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 
 import subprocess
-import sys
+import sys, time
 from enum import Enum
 
+
+def configFromArray(configArray: list[dict], defaultConfig: dict = {}) -> dict:
+    """collapses list of options to single dictionary"""
+    config = defaultConfig.copy()
+    for d in configArray:
+        for k, v in d.items():
+            if k != "comment":
+                config[k] = v
+    return config
+
+
 class PlatformType(Enum):
-    LINUX      = 0
-    WINDOWS    = 1
-    UNSUPPORTED= -1
+    LINUX = 0
+    WINDOWS = 1
+    UNSUPPORTED = -1
+
 
 def getPlatformType():
     if sys.platform.startswith("linux"):
@@ -17,15 +29,17 @@ def getPlatformType():
     else:
         return PlatformType.UNSUPPORTED
 
+
 def windowsSetupCmdString(batfile: str) -> str:
-    '''
+    """
     command string for windows developer.
     non-windows platform returns "".
-    '''
+    """
     if getPlatformType() == PlatformType.WINDOWS:
         return "{vcvars} && set CC=cl && set CXX=cl && ".format(vcvars=batfile)
     else:
         return ""
+
 
 def execute(
     message,
@@ -41,7 +55,6 @@ def execute(
         print(command_line)
         sys.stdout.flush()
     while True:
-
         p = subprocess.Popen(
             command_line,
             bufsize=0,
@@ -87,5 +100,6 @@ def execute(
     else:
         return False
 
+
 if __name__ == "__main__":
-    print('Hello.')
+    print("this module is not intended to run as a script")
