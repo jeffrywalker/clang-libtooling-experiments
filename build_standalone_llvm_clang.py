@@ -40,7 +40,7 @@ def main(args):
     # options from binder
     llvmOptions = "-DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_EH=1"
     # LLVM
-    '''
+
     llvmStr = "{setup} cmake -G Ninja -S {llvm_dir}/llvm -B {build_llvm} " + \
         "-DLLVM_INSTALL_UTILS=ON " + \
         "-DCMAKE_INSTALL_PREFIX={install_prefix} " + \
@@ -62,7 +62,7 @@ def main(args):
             build_llvm=config['build_llvm'],
             jobs="-j" + str(config['jobs'])
         ))
-    '''
+
     # CLANG
     clangStr = \
         "{setup} cmake -G Ninja -S {llvm_dir}/clang -B {build_clang} " + \

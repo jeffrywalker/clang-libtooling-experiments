@@ -1,0 +1,16 @@
+{
+    // build directory for llvm
+    "build_llvm": "../build-llvm",
+    // build directory for clang
+    "build_clang": "../build-clang",
+    // directory of the LLVM project: https://github.com/llvm/llvm-project
+    "llvm_dir": "../llvm",
+    // where llvm/clang should be installed
+    "install_prefix": "../llvm-reldbg",
+    // type of build to perform
+    "build_type": "RelWithDebInfo",
+    // passed to Ninja -j option
+    "jobs": 8,
+    // (WINDOWS) Visual Studio VC VarsBat to setup toolchain
+    "vcvarsbat": "\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Auxiliary/Build/vcvars64.bat\""
+}
