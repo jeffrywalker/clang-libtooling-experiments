@@ -4,8 +4,11 @@ namespace Foo
 {
     struct Vector3
     {
+        /// \units inherit
         double x;
+        /// \units inherit
         double y;
+        /// \units inherit
         double z;
     };
 
@@ -13,9 +16,9 @@ namespace Foo
     struct MyData
     {
         /// description for var1
-        /// \units ft and other things
-        //
+        /// \units ft
         /// \convention forward
+        /// \range [0, 180]
         /// \details detailed content here
         double var1;
         /// description for var2

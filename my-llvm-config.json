@@ -1,0 +1,39 @@
+[
+    {
+        "comment": "type of build to use, Release or RelWithDebInfo",
+        "build_type": "RelWithDebInfo"
+    },
+    {
+        "comment": "number of jobs passed to Ninja -j option",
+        "jobs": 12
+    },
+    {
+        "comment": "(windows) Visual Studio VC VarsBat to setup toolchain",
+        "vcvarsbat": "\"C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat\""
+    },
+    {
+        "comment": "build directory for llvm",
+        "llvm_build_dir": "../build-llvm"
+    },
+    {
+        "comment": "build directory for clang",
+        "clang_build_dir": "../build-clang"
+    },
+    {
+        "comment": "directory of the cloned LLVM project: https://github.com/llvm/llvm-project",
+        "llvm_repo_dir": "../llvm"
+    },
+    {
+        "comment": "Where llvm/clang should be installed. Also informs binder where LLVM/Clang libraries are.",
+        "llvm_install_prefix": "../llvm-reldbg"
+    },
+    {
+        "comment": "LLVM project source that is cloned",
+        "llvm_repo": "https://github.com/llvm/llvm-project.git",
+        "llvm_branch": "llvmorg-16.0.6"
+    },
+    {
+        "comment": "LLVM options required by binder",
+        "llvm_options": "-DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_EH=1"
+    }
+]

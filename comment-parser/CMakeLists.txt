@@ -6,13 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_LIST_DIR}/..")
 
 # LLVM
-set(LLVM_DIR ${CMAKE_CURRENT_LIST_DIR}/../../llvm-release/lib/cmake/llvm)
+set(LLVM_DIR ${CMAKE_CURRENT_LIST_DIR}/../../llvm-reldbg/lib/cmake/llvm)
 find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 # Clang
-set(Clang_DIR ${CMAKE_CURRENT_LIST_DIR}/../../llvm-release/lib/cmake/clang)
+set(Clang_DIR ${CMAKE_CURRENT_LIST_DIR}/../../llvm-reldbg/lib/cmake/clang)
 find_package(Clang REQUIRED)
 message(STATUS "Found Clang")
 message(STATUS "Using ClangConfig.cmake in: ${Clang_DIR}")
