@@ -22,7 +22,7 @@
             "name": "(Windows) Launch comment-parser",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/comment-parser.exe",
+            "program": "${workspaceFolder}/bin/comment-parser-association.exe",
             "args": [
                 "test-comment-parser.h",
                 "--",
