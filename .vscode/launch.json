@@ -37,6 +37,28 @@
             "cwd": "${workspaceRoot}/bin",
             "environment": [],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "(Windows) Launch register-select",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/register-select.exe",
+            "args": [
+                "../register-tests/case-1/main.h",
+                "-config",
+                "../register-tests/case-1/config.cfg",
+                "-log-level",
+                "DEBUG",
+                "--",
+                "",
+                "-std=c++17",
+                "-x",
+                "c++"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}/bin",
+            "environment": [],
+            "console": "integratedTerminal"
         }
     ]
 }

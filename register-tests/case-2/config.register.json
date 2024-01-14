@@ -1,0 +1,21 @@
+{
+    "lists": [
+        {
+            "name": "MyVehicle",
+            "items": [
+                {
+                    "class": "Ship::INP",
+                    "node": "INP"
+                },
+                {
+                    "class": "Ship::OUT",
+                    "node": "OUT"
+                },
+                {
+                    "class": "Ship::INT",
+                    "node": "INT"
+                }
+            ]
+        }
+    ]
+}

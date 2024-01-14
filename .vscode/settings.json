@@ -5,7 +5,10 @@
         "charconv": "cpp",
         "concepts": "cpp",
         "type_traits": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "vector": "cpp"
     },
-    "C_Cpp.default.compilerPath": "C:\\Program Files\\LLVM\\bin\\clang++.exe"
+    "editor.rulers": [
+        132
+    ]
 }
