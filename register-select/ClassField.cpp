@@ -69,12 +69,18 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
         {
             regVar.enumName = et->getAsTagDecl()->getNameAsString();
             // add enumerated values as convention to demonstrate reading enum
+            /// FIXME correct registration code
             std::string enumConvention      = "";
             const clang::EnumDecl* enumDecl = et->getDecl();
+            std::stringstream ss;
+            ss << "{\nstd::vector<std::pair<std::wstring, int>> entryList = \n{\n";
             for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
             {
                 enumConvention += it->getNameAsString() + "(" + std::to_string(it->getInitVal().getSExtValue()) + ") ";
+                ss << "  {L\"" << it->getNameAsString() << "\", " << std::to_string(it->getInitVal().getSExtValue()) << "},\n";
             }
+            ss << "}; // " << regVar.enumName << "\n}\n";
+            Writer::get().bufferEnum(ss.str());
             regVar.convention = enumConvention;
         }
     }
@@ -94,7 +100,7 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
 
     if (isCompoundType)
     {
-        Writer::get().write(regVar.dumpStr());
+        Writer::get().bufferRegister(regVar.dumpStr());
 
         // check for base classes
         const clang::CXXRecordDecl* tcxx = t->getAsCXXRecordDecl();
@@ -142,6 +148,6 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
     else
     {
         regVar.isBasicType = true;
-        Writer::get().write(regVar.dumpStr());
+        Writer::get().bufferRegister(regVar.dumpStr());
     }
 }

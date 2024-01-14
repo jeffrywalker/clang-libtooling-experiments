@@ -24,6 +24,8 @@ void Context::generate(const Config& config)
     /// HACK needs user config
     std::stringstream ss;
     ss << "#include <string>\n";
+    ss << "#include <vector>\n"
+       << "#include <utility>\n";
     ss << "void registerReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* "
           "units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName){}\n";
     ss << "void registerVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, "
@@ -37,6 +39,8 @@ void Context::generate(const Config& config)
         itr.first->generateRegistration(*this, itr.second);
     }
     /// HACK
+    Writer::get().writeEnum();
+    Writer::get().writeRegister();
     Writer::get().write("\n}");
     Writer::get().close();
 

@@ -1,9 +1,19 @@
 #include "MyClass.h"
 #include <string>
+#include <vector>
+#include <utility>
 void registerReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName){}
 void registerVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* varType, void* address, const wchar_t* enumName = nullptr){}
 void MyClass::registerData()
 {
+{
+std::vector<std::pair<std::wstring, int>> entryList = 
+{
+  {L"OFF", 0},
+  {L"ON", 1},
+  {L"IDLE", 2},
+}; // Mode
+}
 registerReference(L"INP.inp", L"", L"system input data", L"", L"", L"", L"", L"Inputs");
 registerVar(L"INP.inp.u", L"primary input", L"ft", L"", L"", L"", L"double", &(m_inp.u));
 registerVar(L"INP.inp.mode", L"operational mode", L"", L"OFF(0) ON(1) IDLE(2) ", L"", L"", L"(ENUM) Mode", &(m_inp.mode));
