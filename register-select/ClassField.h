@@ -20,8 +20,6 @@ namespace data_registration
             private:
         const clang::FieldDecl* m_F;
 
-        Context* m_context = nullptr;
-
         /// processes a field declaration traversing children if not a built-in type
         /// \param [in] list name this is being registered as
         /// \param [in] fd the field being processed

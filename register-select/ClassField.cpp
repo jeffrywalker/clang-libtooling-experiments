@@ -145,8 +145,19 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
         }
 
         // traverse the children
+        std::string _type_str = "(unk)";
+        if (t->isStructureType())
+        {
+            _type_str = "(struct)";
+        }
+        else if (t->isClassType())
+        {
+            _type_str = "(class)";
+        }
+        Logger::get().debug("Adding child fields for " + _type_str + " " + regVar.typeName);
         for (const auto* childField : typeRecord->fields())
         {
+            /// TODO impose filter so member variables that are junk are avoided IFF this is a class (not struct)
             registerFieldDecl(listName, childField, &regVar);
         }
     }

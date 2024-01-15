@@ -1,0 +1,113 @@
+#include "GroundReaction.h"
+#include <string>
+#include <vector>
+#include <utility>
+void registerReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName){}
+void registerVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* varType, void* address, const wchar_t* enumName = nullptr){}
+void GroundReaction::registerData()
+{
+registerVar(L"INP.alt", L"", L"ft", L"", L"", L"", L"double", &(alt));
+registerVar(L"INP.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(velocity));
+registerReference(L"OUT.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
+registerVar(L"OUT.forces.x", L"", L"N", L"", L"", L"", L"double", &(forces.x));
+registerVar(L"OUT.forces.y", L"", L"N", L"", L"", L"", L"double", &(forces.y));
+registerVar(L"OUT.forces.z", L"", L"N", L"", L"", L"", L"double", &(forces.z));
+registerReference(L"OUT.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
+registerVar(L"OUT.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(moments.x));
+registerVar(L"OUT.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(moments.y));
+registerVar(L"OUT.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(moments.z));
+registerReference(L"INT.leftGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
+registerReference(L"INT.leftGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
+registerVar(L"INT.leftGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.x));
+registerVar(L"INT.leftGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.y));
+registerVar(L"INT.leftGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.z));
+registerVar(L"INT.leftGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(leftGear.velocity));
+registerReference(L"INT.leftGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
+registerVar(L"INT.leftGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.x));
+registerVar(L"INT.leftGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.y));
+registerVar(L"INT.leftGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.z));
+registerReference(L"INT.leftGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
+registerVar(L"INT.leftGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.x));
+registerVar(L"INT.leftGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.y));
+registerVar(L"INT.leftGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.z));
+registerVar(L"INT.leftGear.frameCount", L"", L"", L"", L"", L"", L"int", &(leftGear.frameCount));
+registerReference(L"INT.leftGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.leftGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(leftGear.leftTire.radius));
+registerVar(L"INT.leftGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(leftGear.leftTire.pressure));
+registerVar(L"INT.leftGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(leftGear.leftTire.isFlat));
+registerReference(L"INT.leftGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.leftGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(leftGear.rightTire.radius));
+registerVar(L"INT.leftGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(leftGear.rightTire.pressure));
+registerVar(L"INT.leftGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(leftGear.rightTire.isFlat));
+registerVar(L"INT.leftGear.junkVar", L"", L"", L"", L"", L"", L"double", &(leftGear.junkVar));
+registerVar(L"INT.leftGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(leftGear.isInReset));
+registerReference(L"INT.leftGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
+registerReference(L"INT.leftGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
+registerVar(L"INT.leftGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.x));
+registerVar(L"INT.leftGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.y));
+registerVar(L"INT.leftGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.z));
+registerVar(L"INT.leftGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(leftGear.debug.hasContact));
+registerReference(L"INT.rightGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
+registerReference(L"INT.rightGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
+registerVar(L"INT.rightGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.x));
+registerVar(L"INT.rightGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.y));
+registerVar(L"INT.rightGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.z));
+registerVar(L"INT.rightGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(rightGear.velocity));
+registerReference(L"INT.rightGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
+registerVar(L"INT.rightGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.x));
+registerVar(L"INT.rightGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.y));
+registerVar(L"INT.rightGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.z));
+registerReference(L"INT.rightGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
+registerVar(L"INT.rightGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.x));
+registerVar(L"INT.rightGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.y));
+registerVar(L"INT.rightGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.z));
+registerVar(L"INT.rightGear.frameCount", L"", L"", L"", L"", L"", L"int", &(rightGear.frameCount));
+registerReference(L"INT.rightGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.rightGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(rightGear.leftTire.radius));
+registerVar(L"INT.rightGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(rightGear.leftTire.pressure));
+registerVar(L"INT.rightGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(rightGear.leftTire.isFlat));
+registerReference(L"INT.rightGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.rightGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(rightGear.rightTire.radius));
+registerVar(L"INT.rightGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(rightGear.rightTire.pressure));
+registerVar(L"INT.rightGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(rightGear.rightTire.isFlat));
+registerVar(L"INT.rightGear.junkVar", L"", L"", L"", L"", L"", L"double", &(rightGear.junkVar));
+registerVar(L"INT.rightGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(rightGear.isInReset));
+registerReference(L"INT.rightGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
+registerReference(L"INT.rightGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
+registerVar(L"INT.rightGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.x));
+registerVar(L"INT.rightGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.y));
+registerVar(L"INT.rightGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.z));
+registerVar(L"INT.rightGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(rightGear.debug.hasContact));
+registerReference(L"INT.noseGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
+registerReference(L"INT.noseGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
+registerVar(L"INT.noseGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.x));
+registerVar(L"INT.noseGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.y));
+registerVar(L"INT.noseGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.z));
+registerVar(L"INT.noseGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(noseGear.velocity));
+registerReference(L"INT.noseGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
+registerVar(L"INT.noseGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.x));
+registerVar(L"INT.noseGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.y));
+registerVar(L"INT.noseGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.z));
+registerReference(L"INT.noseGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
+registerVar(L"INT.noseGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.x));
+registerVar(L"INT.noseGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.y));
+registerVar(L"INT.noseGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.z));
+registerVar(L"INT.noseGear.frameCount", L"", L"", L"", L"", L"", L"int", &(noseGear.frameCount));
+registerReference(L"INT.noseGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.noseGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(noseGear.leftTire.radius));
+registerVar(L"INT.noseGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(noseGear.leftTire.pressure));
+registerVar(L"INT.noseGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(noseGear.leftTire.isFlat));
+registerReference(L"INT.noseGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
+registerVar(L"INT.noseGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(noseGear.rightTire.radius));
+registerVar(L"INT.noseGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(noseGear.rightTire.pressure));
+registerVar(L"INT.noseGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(noseGear.rightTire.isFlat));
+registerVar(L"INT.noseGear.junkVar", L"", L"", L"", L"", L"", L"double", &(noseGear.junkVar));
+registerVar(L"INT.noseGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(noseGear.isInReset));
+registerReference(L"INT.noseGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
+registerReference(L"INT.noseGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
+registerVar(L"INT.noseGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.x));
+registerVar(L"INT.noseGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.y));
+registerVar(L"INT.noseGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.z));
+registerVar(L"INT.noseGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(noseGear.debug.hasContact));
+
+}

@@ -3,6 +3,7 @@
 #include "Options.h"
 
 #include "ClassField.h"
+#include "ClassStruct.h"
 #include "DataRegisterUtils.h"
 #include "Logger.h"
 
@@ -60,9 +61,6 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
 
     std::string className = C->getQualifiedNameAsString();
     Logger::get().debug("VisitCXXRecordDecl: " + className);
-    /// TODO need to check if this class is to be registered
-    /// ... config needs to be split up by classes
-    /// HACK for test
 
     Config& cfg            = Config::get();
     bool isRegisteredClass = false;
@@ -115,6 +113,18 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
                             m_context.add(p, qualName);
                         }
                     }
+                }
+            }
+            else
+            {
+                // non-template base class
+                std::string qualName = className + "::" + baseType->getNameAsString();
+                Logger::get().debug("Found " + qualName + " (isclass? " + std::to_string(baseTypePtr->isClassType()) +
+                                    ") (isstruct ? " + std::to_string(baseTypePtr->isStructureType()) + ")");
+                if (cfg.doRegister_classField(qualName))
+                {
+                    spDataRegister p = std::make_shared<ClassStruct>(baseType);
+                    m_context.add(p, qualName);
                 }
             }
         }
