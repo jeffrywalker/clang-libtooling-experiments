@@ -22,38 +22,60 @@ void Logger::setLogLevel(LogLevel level)
     m_logLevel = level;
 }
 
-void Logger::write(const std::string& msg)
+void Logger::write(const std::string& msg, const std::source_location location, LogLevel level)
 {
-    std::cout << msg << "\n";
+    std::stringstream ss;
+    switch (level)
+    {
+        case LogLevel::DEBUG:
+            ss << "DEBUG: ";
+            break;
+        case LogLevel::INFO:
+            ss << "INFO: ";
+            break;
+        case LogLevel::WARNING:
+            ss << "WARNING: ";
+            break;
+        case LogLevel::ERROR:
+            ss << "ERROR: ";
+            break;
+    }
+    ss << msg;
+    if (level != LogLevel::INFO)
+    {
+        ss << "\n    " << location.file_name() << "(" << location.line() << "," << location.column() << ")\n"
+           << "    " << location.function_name();
+    }
+    std::cout << ss.str() << "\n";
 }
 
-void Logger::debug(const std::string& msg)
+void Logger::debug(const std::string& msg, const std::source_location location /*= std::source_location::current()*/)
 {
     if (m_logLevel <= LogLevel::DEBUG)
     {
-        write("DEBUG: " + msg);
+        write(msg, location, LogLevel::DEBUG);
     }
 }
-void Logger::info(const std::string& msg)
+void Logger::info(const std::string& msg, const std::source_location location /*= std::source_location::current()*/)
 {
     if (m_logLevel <= LogLevel::INFO)
     {
-        write("INFO: " + msg);
+        write(msg, location, LogLevel::INFO);
     }
 }
 
-void Logger::warn(const std::string& msg)
+void Logger::warn(const std::string& msg, const std::source_location location /*= std::source_location::current()*/)
 {
     if (m_logLevel <= LogLevel::WARNING)
     {
-        write("WARNING: " + msg);
+        write(msg, location, LogLevel::WARNING);
     }
 }
 
-void Logger::error(const std::string& msg)
+void Logger::error(const std::string& msg, const std::source_location location /*= std::source_location::current()*/)
 {
     if (m_logLevel <= LogLevel::ERROR)
     {
-        write("ERROR: " + msg);
+        write(msg, location, LogLevel::ERROR);
     }
 }

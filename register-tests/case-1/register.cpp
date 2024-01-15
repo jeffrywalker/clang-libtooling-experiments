@@ -21,7 +21,11 @@ void Parent::registerData()
             {L"IDLE", 2},
         };  // Mode
     }
-    registerReference(L"INP.inp", L"", L"system input data", L"", L"", L"", L"", L"Inputs");
+    registerReference(                      /*name*/
+                      L"INP.inp",           /*name*/
+                      L"",                  /*arrayDesignation*/
+                      L"system input data", /*description*/
+                      L"", L"", L"", L"", L"Inputs");
     registerVar(L"INP.inp.u", L"primary input", L"ft", L"", L"", L"", L"double", &(m_inp.u));
     registerVar(L"INP.inp.mode", L"operational mode", L"", L"OFF(0) ON(1) IDLE(2) ", L"", L"", L"(ENUM) Mode", &(m_inp.mode));
     registerReference(L"OUT.out", L"", L"system output data", L"", L"", L"", L"", L"Outputs");

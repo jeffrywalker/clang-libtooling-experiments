@@ -42,8 +42,9 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
     const clang::Type* t                = qt.getTypePtr();
     const clang::RecordDecl* typeRecord = t->getAsRecordDecl();
     bool isBuiltIn                      = t->isBuiltinType();
-    bool isClassOrStruct                = t->isStructureType() || t->isClassType();  /// NOTE: probably better than 'isCompoundType'
-    bool isCompoundType                 = !t->isBuiltinType() && !t->isEnumeralType();
+    /// TODO this is probably better than the 'isCompoundType' below
+    bool isClassOrStruct = t->isStructureType() || t->isClassType();
+    bool isCompoundType  = !t->isBuiltinType() && !t->isEnumeralType();
 
     ASTContext& context = fd->getASTContext();
     // register entry for this field
@@ -131,6 +132,10 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
                 Logger::get().debug(ss.str());
                 if (canRegisterBase)
                 {
+                    // template base class
+                    walkTemplateBase(baseType, &regVar, listName);
+
+                    // fields of the base class
                     for (const auto* childField : baseType->fields())
                     {
                         registerFieldDecl(listName, childField, &regVar);
@@ -149,5 +154,33 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
     {
         regVar.isBasicType = true;
         Writer::get().bufferRegister(regVar.dumpStr());
+    }
+}
+
+void ClassField::walkTemplateBase(const clang::RecordDecl* baseType, const RegisteredVariable* parent, const std::string& listName)
+{
+    if (const auto* CTSD = dyn_cast<clang::ClassTemplateSpecializationDecl>(baseType))
+    {
+        for (const auto b : CTSD->bases())
+        {
+            const auto* btp = b.getType().getTypePtrOrNull();
+            if (btp == nullptr)
+                continue;
+
+            const clang::RecordDecl* ctsdBaseType = btp->getAsRecordDecl();
+            /// HACK check if this is to be registered
+            /// FIXME needs to be instance class name
+            std::string qualName = parent->typeName + "::" + ctsdBaseType->getNameAsString();
+            Logger::get().debug("CTSD BASE: " + qualName);
+            // FIXME FILTER CHECK if (cfg.doRegister_classField(qualName))
+            // FIXME FILTER CHECK {
+            for (const auto* baseField : ctsdBaseType->fields())
+            {
+                // spDataRegister p = std::make_shared<ClassField>(baseField);
+                // m_context.add(p, qualName);
+                registerFieldDecl(listName, baseField, parent);
+            }
+            // }
+        }
     }
 }

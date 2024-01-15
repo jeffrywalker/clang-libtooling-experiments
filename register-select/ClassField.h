@@ -26,7 +26,9 @@ namespace data_registration
         /// \param [in] list name this is being registered as
         /// \param [in] fd the field being processed
         /// \param [in] parent used by recursive calls when (field) is a compound type
-        void registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd,
-                               const data_registration::RegisteredVariable* parent = nullptr);
+        void registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent = nullptr);
+
+        /// walks the template base class
+        void walkTemplateBase(const clang::RecordDecl* baseType, const RegisteredVariable* parent, const std::string& listName);
     };
 }  // namespace data_registration

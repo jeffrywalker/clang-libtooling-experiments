@@ -63,11 +63,12 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
     /// TODO need to check if this class is to be registered
     /// ... config needs to be split up by classes
     /// HACK for test
-    /*
+
+    Config& cfg            = Config::get();
     bool isRegisteredClass = false;
-    for (const auto r : Config::get().getRegisters())
+    for (const auto r : cfg.getRegisters())
     {
-        if (r.second.starts_with(className))
+        if (r.classItem.starts_with(className))
         {
             isRegisteredClass = true;
             break;
@@ -78,8 +79,7 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
         return true;
     }
 
-    C->dumpColor();
-    Logger::get().debug("NumBases " + std::to_string(C->getNumBases()));
+    // DEBUG C->dumpColor();
     for (const auto base : C->bases())
     {
         const clang::Type* baseTypePtr = base.getType().getTypePtrOrNull();
@@ -95,7 +95,7 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
             {
                 prefix += "(CTSD)";
                 Logger::get().debug(prefix + " " + baseType->getNameAsString());
-                // CTSD->dumpColor();
+                // DEBUG CTSD->dumpColor();
 
                 for (const auto b : CTSD->bases())
                 {
@@ -104,27 +104,21 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
                         continue;
 
                     const clang::RecordDecl* baseType = btp->getAsRecordDecl();
-                    Logger::get().debug(baseType->getNameAsString());
+                    Logger::get().debug("CTSD BASE: " + baseType->getNameAsString());
                     /// HACK check if this is to be registered
                     std::string qualName = className + "::" + baseType->getNameAsString();
-                    auto rtn             = Config::get().doRegister_classMember(qualName);
-                    if (rtn.first)
+                    if (cfg.doRegister_classField(qualName))
                     {
                         for (const auto* baseField : baseType->fields())
                         {
-                            registerFieldDecl(rtn.second, baseField);
+                            spDataRegister p = std::make_shared<ClassField>(baseField);
+                            m_context.add(p, qualName);
                         }
                     }
                 }
             }
         }
     }
-    */
-    // if (binder::is_bindable(C))
-    // {
-    //     binder::BinderOP b = std::make_shared<binder::ClassBinder>(C);
-    //     context.add(b);
-    // }
 
     return true;
 }
@@ -132,8 +126,7 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
 bool DataRegisterVisitor::VisitFieldDecl(clang::FieldDecl* F)
 {
     std::string qualName = F->getQualifiedNameAsString();
-    /// TODO: fields are class members, this would be what is spec'd in the config file for the simple case
-    /// HACK for test
+    /// NOTE: fields are class members, this would be what is spec'd in the config file for the simple case
     Config& cfg = Config::get();
     if (cfg.doRegister_classField(qualName))
     {

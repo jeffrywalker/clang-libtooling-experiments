@@ -12,6 +12,7 @@ using namespace data_registration;
 enum class InitBlock
 {
     SETUP = 0,
+    CLASSES,
     LISTS
 };
 

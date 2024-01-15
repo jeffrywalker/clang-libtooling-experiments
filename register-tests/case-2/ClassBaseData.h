@@ -32,38 +32,7 @@ namespace ns_ShipData
 
 }  // namespace ns_ShipData
 
-namespace ns_AircraftData
-{
-    struct Inputs
-    {
-        double u;
-    };
-
-    struct Outputs
-    {
-        double x;
-    };
-
-    struct Internals
-    {
-        int count;
-    };
-
-    typedef DataBase<Inputs, Outputs, Internals> Model;
-
-}  // namespace ns_AircraftData
-
 class Ship : public ns_ShipData::DataModel
 {
-};
-class Aircraft : public ns_AircraftData::Model
-{
-};
-
-class MyModel
-{
     void registerData();
-
-    Ship ship;
-    Aircraft aircraft;
 };
