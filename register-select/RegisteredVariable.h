@@ -149,8 +149,7 @@ namespace data_registration
         std::string m_activeArrayAccess = "";
 
         /// applies filtering to name
-        /// HACK assumes 'm_' should always be removed
-        /// TODO needs to be configurable
+        /// TODO needs to be configurable, currently assumes 'm_' is to be removed
         std::string getFilteredName();
 
         std::string getAddRefCode() const;

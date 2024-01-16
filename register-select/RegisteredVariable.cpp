@@ -42,7 +42,6 @@ void RegisteredVariable::setDescriptionFromText(const std::string& text)
     {
         return;
     }
-    /// FIXME this doesn't capture tabs
     if (text.find_first_not_of(WHITESPACE) != std::string::npos)
     {
         description = trim(text);
@@ -305,7 +304,6 @@ std::string RegisteredVariable::getVarTypeEnumString(const std::string& arrayAcc
 std::string RegisteredVariable::getAddressAccess(const std::string& arrayAccess) const
 {
     /// FIXME need to check for when &() is needed
-    /// FIXME need to check when arrow access is needed
     return "&(" + getFullName(arrayAccess) + ")";
 }
 

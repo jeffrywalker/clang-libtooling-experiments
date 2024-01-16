@@ -105,7 +105,6 @@ bool DataRegisterVisitor::VisitCXXRecordDecl(clang::CXXRecordDecl* C)
 
                     const clang::RecordDecl* baseType = btp->getAsRecordDecl();
                     Logger::get().debug("CTSD BASE: " + baseType->getNameAsString());
-                    /// HACK check if this is to be registered
                     std::string qualName = className + "::" + baseType->getNameAsString();
                     if (cfg.doRegister_classField(qualName))
                     {

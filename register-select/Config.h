@@ -24,7 +24,6 @@ namespace data_registration
     /// TODO unit replacements
     /// TODO exclude class filters
     /// TODO register of classes that have private data - register method access
-    /// TODO support of arrays
     /// TODO hash of registration code
     /// TODO support splitting up registration code into functions
     class Config
@@ -35,7 +34,8 @@ namespace data_registration
 
         static Config& get();
         /// Read config setting from the file
-        /// TODO JSON withh schema
+        /// TODO JSON with schema
+        /// TODO option to output JSON (not-dictionary compliant)
         void read(const std::string& file_name);
 
         /// output filename to write registration code to

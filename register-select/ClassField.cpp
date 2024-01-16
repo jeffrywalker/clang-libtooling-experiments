@@ -70,83 +70,6 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
         {
             registerStructClass(listName, fd, &regVar);
         }
-        /*
-        /// MIGRATED
-        Writer::get().bufferRegister(regVar.getRegistrationCode());
-
-        // check for base classes
-        const clang::CXXRecordDecl* tcxx = t->getAsCXXRecordDecl();
-        if (tcxx->getNumBases() > 0)
-        {
-            for (const auto itr : tcxx->bases())
-            {
-                const clang::RecordDecl* baseType = itr.getType().getTypePtr()->getAsRecordDecl();
-                std::string baseName              = baseType->getNameAsString();
-                std::stringstream ss;
-                ss << "base: " << baseName;
-                bool canRegisterBase = false;
-                if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_public)
-                {
-                    ss << " is public";
-                    canRegisterBase = true;
-                }
-                else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_protected)
-                {
-                    ss << " is protected";
-                    canRegisterBase = true;
-                }
-                else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_private)
-                {
-                    ss << " is private";
-                    /// TODO would require check for public/protected register method
-                }
-                Logger::get().debug(ss.str());
-                if (canRegisterBase)
-                {
-                    // template base class
-                    walkTemplateBase(baseType, &regVar, listName);
-
-                    // apply filter to base classes that are not templates as the fields will be read directly
-                    std::string classBaseName = regVar.className + "::" + baseName;
-                    if (!Config::get().doRegisterImplicitClassField(classBaseName))
-                    {
-                        Logger::get().debug("Excluding filtered class base: " + classBaseName);
-                        continue;
-                    }
-                    // fields of the base class
-                    for (const auto* childField : baseType->fields())
-                    {
-                        registerFieldDecl(listName, childField, &regVar);
-                    }
-                }
-            }
-        }
-
-        // traverse the children
-        std::string _type_str = "(unk)";
-        if (t->isStructureType())
-        {
-            _type_str = "(struct)";
-        }
-        else if (t->isClassType())
-        {
-            _type_str = "(class)";
-        }
-        Logger::get().debug("Adding child fields for " + _type_str + " " + regVar.typeName);
-        for (const auto* childField : typeRecord->fields())
-        {
-            if (regVar.isClass)
-            {
-                std::string classFieldName = regVar.className + "::" + childField->getName().str();
-                if (!Config::get().doRegisterImplicitClassField(classFieldName))
-                {
-                    Logger::get().debug("Excluding filtered class field: " + classFieldName);
-                    continue;
-                }
-            }
-            registerFieldDecl(listName, childField, &regVar);
-        }
-        */
     }
     else
     {
@@ -165,7 +88,7 @@ void ClassField::walkTemplateBase(const clang::RecordDecl* baseType, const Regis
                 continue;
 
             const clang::RecordDecl* ctsdBaseType = btp->getAsRecordDecl();
-            /// FIXME needs to be instance class name
+            /// FIXME should be instance class name, i.e., specialized instance name
             std::string qualName = parent->typeName + "::" + ctsdBaseType->getNameAsString();
             Logger::get().debug("CTSD BASE: " + qualName);
             /// TODO apply class filters to the template base (require instance not template class name)

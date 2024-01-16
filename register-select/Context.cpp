@@ -24,19 +24,19 @@ void Context::generate(const Config& config)
     {
         Writer::get().write("#include \"" + config.outputInclude + "\"\n");
     }
-    /// HACK needs user config
-    std::stringstream hackCode;
-    hackCode
+    /// TODO needs user config hooks for output code (and removal of this temp prefix)
+    std::stringstream tempPrefixCode;
+    tempPrefixCode
         << "#include <string>\n"
         << "#include <chrono>\n"
         << "#include <vector>\n"
         << "#include <utility>\n\n"
-        << "// HACK\n"
+        << "// REMOVE ME\n"
         << "class IVarDef {\npublic:\n"
         << tab() << "enum vartype { ENUM };\n"
         << tab() << "template <typename T> static vartype getVarType(T var){}\n"
         << "};\n"
-        << "// HACK\n"
+        << "// REMOVE ME\n"
         << "class IVarList {\npublic:\n"
         << tab()
         << "void addReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* "
@@ -51,7 +51,7 @@ void Context::generate(const Config& config)
         << tab() << "void alignToList(IVarList*){}\n"
         << tab() << "IVarList* createComparisonList(){}\n"
         << "};\n"
-        << "// HACK\n"
+        << "// REMOVE ME\n"
         << "class IVarData {\npublic:\n"
         << tab() << "IVarList* getList(const wchar_t* name){}\n"
         << tab() << "IVarList* createVarList(const wchar_t* name, unsigned int* r=(unsigned int*)nullptr){}\n"
@@ -59,9 +59,9 @@ void Context::generate(const Config& config)
         << "\n\n";
 
     std::stringstream ss;
-    ss << hackCode.str()  //
+    ss << tempPrefixCode.str()  //
        << "bool " << config.rootClassName << "::registerData(const std::wstring& listName, IVarData* pVarData)\n{\n"
-       << tab() << "// HACK always unique hash\n"
+       << tab() << "// create an always unique hash (temporary)\n"
        << tab()
        << "std::wstring hack_changingHash = listName + "
           "std::to_wstring(std::chrono::steady_clock().now().time_since_epoch().count());\n"
