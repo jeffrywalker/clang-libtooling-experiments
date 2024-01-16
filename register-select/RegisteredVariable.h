@@ -68,6 +68,11 @@ namespace data_registration
         /// dimensions of the array
         std::vector<uint64_t> dimensions;
 
+        /// \returns number of array elements this variable has
+        size_t getNumArrayElements() const;
+        /// \param index the linear index into the array
+        std::string getArrayAccessFromLinearIndex(size_t index) const;
+
         /// \returns true if the comment specified unit entry is 'inherit'
         bool inheritsUnits();
 
@@ -129,6 +134,10 @@ namespace data_registration
 
         std::string getBuiltInTypeStr(const clang::Type* t, clang::ASTContext& context) const;
 
+        /// sets the active array access
+        void setActiveArrayAccess(size_t index);
+        void clearActiveArrayAccess();
+
             private:
         /// fully qualified name used to obtain memory address
         std::string m_fullQualName = "";
@@ -136,6 +145,8 @@ namespace data_registration
         std::string m_listName = "";
         /// name of the variable
         std::string m_name = "";
+        /// current array access
+        std::string m_activeArrayAccess = "";
 
         /// applies filtering to name
         /// HACK assumes 'm_' should always be removed

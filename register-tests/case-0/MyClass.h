@@ -5,14 +5,21 @@ enum class Mode
     IDLE
 };
 
+struct Fruit
+{
+    int apple[2];
+    unsigned long orange;
+};
+
 struct Vec3
 {
     /// \units inherit
     double x;
     /// \units inherit
-    double y;
+    double y[3];
     /// \units inherit
     double z;
+    Fruit fruits[3];
 };
 
 struct Inputs
@@ -29,7 +36,7 @@ struct Inputs
     /// array input
     // double ainp[3][2];
     // Mode foo[2];
-    // Vec3 foo[2];
+    Vec3 structArray[2][3];
 
     /// std array
     // std::array<int, 5> foo;

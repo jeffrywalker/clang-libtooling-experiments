@@ -54,7 +54,22 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
     }
     else if (regVar.isStruct || regVar.isClass)
     {
-        registerStructClass(listName, fd, &regVar, regVar.isArray);
+        Writer::get().bufferRegister(regVar.getRegistrationCode());
+        if (regVar.isArray)
+        {
+            // iterate over the array to provide the necessary prefix
+            /// FIXME should cache known type to reduce calls that are duplicate purely from array access
+            for (size_t i = 0; i < regVar.getNumArrayElements(); i++)
+            {
+                // std::string arrayPrefix = regVar.getArrayAccessFromLinearIndex(i);
+                regVar.setActiveArrayAccess(i);
+                registerStructClass(listName, fd, &regVar);
+            }
+        }
+        else
+        {
+            registerStructClass(listName, fd, &regVar);
+        }
         /*
         /// MIGRATED
         Writer::get().bufferRegister(regVar.getRegistrationCode());
@@ -162,13 +177,28 @@ void ClassField::walkTemplateBase(const clang::RecordDecl* baseType, const Regis
     }
 }
 
-void ClassField::registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent,
-                                     bool isArray)
+void ClassField::registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent)
 {
-    Writer::get().bufferRegister(parent->getRegistrationCode());
-
-    const clang::QualType qt            = fd->getType();
-    const clang::Type* t                = qt.getTypePtr();
+    // MIGRATE up Writer::get().bufferRegister(parent->getRegistrationCode());
+    clang::QualType qt;
+    const clang::Type* t;
+    if (parent->isArray)
+    {
+        if (const auto* CAT = fd->getASTContext().getAsConstantArrayType(fd->getType()))
+        {
+            t  = getConstArrayType(CAT);
+            qt = getConstArrayQualType(CAT);
+        }
+        else
+        {
+            Logger::get().error("Failed to obtain CAT for: " + fd->getNameAsString());
+        }
+    }
+    else
+    {
+        qt = fd->getType();
+        t  = qt.getTypePtr();
+    }
     const clang::RecordDecl* typeRecord = t->getAsRecordDecl();
 
     // check for base classes

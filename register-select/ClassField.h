@@ -31,8 +31,7 @@ namespace data_registration
         /// \param [in] parent used by recursive calls when (field) is a compound type
         void registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent = nullptr);
 
-        void registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent,
-                                 bool isArray);
+        void registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent);
 
         /// walks the template base class
         void walkTemplateBase(const clang::RecordDecl* baseType, const RegisteredVariable* parent, const std::string& listName);

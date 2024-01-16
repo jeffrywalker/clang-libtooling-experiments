@@ -81,12 +81,12 @@ const std::string& RegisteredVariable::getName() const
 
 std::string RegisteredVariable::getListVarName(const std::string& arrayAccess) const
 {
-    return m_listName + arrayAccess;
+    return m_listName + arrayAccess + m_activeArrayAccess;
 }
 
 std::string RegisteredVariable::getFullName(const std::string& arrayAccess) const
 {
-    return m_fullQualName + arrayAccess;
+    return m_fullQualName + arrayAccess + m_activeArrayAccess;
 }
 
 std::string RegisteredVariable::getAddRefCode() const
@@ -124,19 +124,13 @@ std::string RegisteredVariable::getAddVarCode(const std::string& arrayAccess) co
 
 std::string RegisteredVariable::getRegistrationCode() const
 {
-    if (isArray)
+    if (isArray && (isBuiltIn || isEnum))
     {
         std::string s = "";
-        int numElem   = 1;  // number of array elements
-        for (const auto& i : dimensions)
-        {
-            numElem *= i;
-        }
         // traverse elements of array
-        for (uint64_t i = 0; i < numElem; i++)
+        for (uint64_t i = 0; i < getNumArrayElements(); i++)
         {
-            std::vector<uint64_t> v = sub2ind(i, dimensions);
-            s += getAddVarCode(getArrayAccess(v));
+            s += getAddVarCode(getArrayAccessFromLinearIndex(i));
         }
         s += getAddRefCode();
         return s;
@@ -375,30 +369,11 @@ void RegisteredVariable::updateTypeInfo(clang::ASTContext& context, const clang:
         Logger::get().debug(m_name + " IS CONST ARRY");
         if (const auto* CAT = context.getAsConstantArrayType(*qt))
         {
-            // const auto* ET      = dyn_cast<clang::Type>(CAT->getElementType());
-            // const auto* ET      = getConstArrayType(CAT);
             const clang::Type* ET     = getConstArrayType(CAT);
             const clang::QualType EQT = getConstArrayQualType(CAT);
             std::string typeStr       = "UNK";
 
             updateTypeInfo(context, ET, &EQT, true);
-
-            // if (ET->isBuiltinType())
-            // {
-            //     typeName  = getBuiltInTypeStr(ET, context);
-            //     isBuiltIn = true;
-            // }
-            // else if (ET->isEnumeralType())
-            // {
-            //     if (const clang::EnumType* et = t->getAs<clang::EnumType>())
-            //     {
-            //         enumName = et->getAsTagDecl()->getNameAsString();
-            //     }
-            // }
-            // else
-            // {
-            //     typeName = ET->getAsRecordDecl()->getNameAsString();
-            // }
 
             dimensions = getConstantArrayExtents(CAT);
             std::string szstr;
@@ -413,4 +388,33 @@ void RegisteredVariable::updateTypeInfo(clang::ASTContext& context, const clang:
     {
         typeName = typeRecord->getNameAsString();
     }
+}
+
+size_t RegisteredVariable::getNumArrayElements() const
+{
+    if (!isArray)
+    {
+        return 0;
+    }
+    size_t numElem = 1;  // number of array elements
+    for (const auto& i : dimensions)
+    {
+        numElem *= i;
+    }
+    return numElem;
+}
+
+std::string RegisteredVariable::getArrayAccessFromLinearIndex(size_t index) const
+{
+    std::vector<uint64_t> v = sub2ind(index, dimensions);
+    return getArrayAccess(v);
+}
+
+void RegisteredVariable::setActiveArrayAccess(size_t index)
+{
+    m_activeArrayAccess = getArrayAccessFromLinearIndex(index);
+}
+void RegisteredVariable::clearActiveArrayAccess()
+{
+    m_activeArrayAccess = "";
 }
