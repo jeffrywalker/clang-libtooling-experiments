@@ -1,9 +1,13 @@
 #pragma once
 
-#include "clang/AST/Decl.h"
-
 #include "DataRegister.h"
 #include "RegisteredVariable.h"
+
+namespace clang
+{
+    class FieldDecl;
+    class RecordDecl;
+}  // namespace clang
 
 namespace data_registration
 {
@@ -19,12 +23,16 @@ namespace data_registration
 
             private:
         const clang::FieldDecl* m_F;
+        Context* m_context = nullptr;
 
         /// processes a field declaration traversing children if not a built-in type
         /// \param [in] list name this is being registered as
         /// \param [in] fd the field being processed
         /// \param [in] parent used by recursive calls when (field) is a compound type
         void registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent = nullptr);
+
+        void registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent,
+                                 bool isArray);
 
         /// walks the template base class
         void walkTemplateBase(const clang::RecordDecl* baseType, const RegisteredVariable* parent, const std::string& listName);

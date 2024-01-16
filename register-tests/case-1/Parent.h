@@ -36,7 +36,6 @@ struct Vehicle
     Vec3 angularVelocity;
 };
 
-/// TODO base class support
 struct AirVehicle : public Vehicle
 {
     /// \units kts
@@ -67,7 +66,7 @@ class Parent
     /// system output data
     Outputs m_out;
 
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
 
         protected:
     Child firstChild;

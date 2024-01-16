@@ -6,7 +6,8 @@
         "concepts": "cpp",
         "type_traits": "cpp",
         "sstream": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "array": "cpp"
     },
     "editor.rulers": [
         132

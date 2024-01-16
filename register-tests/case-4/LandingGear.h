@@ -36,10 +36,17 @@ namespace ns_LandingGear
 
     typedef DataBase<INP, OUT, INT> ModelData;
 
+    struct Sandbox
+    {
+        double sandbox_a;
+        double sandbox_b;
+        double sandbox_c;
+    };
+
 }  // namespace ns_LandingGear
 
 
-class LandingGear : public ns_LandingGear::ModelData
+class LandingGear : public ns_LandingGear::ModelData, public ns_LandingGear::Sandbox
 {
         public:
     struct DebugData
@@ -48,8 +55,11 @@ class LandingGear : public ns_LandingGear::ModelData
         math::Vector3 acceleration;
         bool hasContact;
     };
+    /// DoNotRegister
     double junkVar;
+    /// DoNotRegister
     bool isInReset;
 
-    DebugData debug;
+    /// DoNotRegister
+    DebugData m_devDebug;
 };

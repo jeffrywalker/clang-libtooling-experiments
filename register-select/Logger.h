@@ -9,6 +9,8 @@ namespace data_registration
     class Logger
     {
             public:
+        Logger(const Logger& old) = delete;
+        static Logger& get();
         enum LogLevel
         {
             NOTSET  = 0,
@@ -17,8 +19,6 @@ namespace data_registration
             WARNING = 30,
             ERROR   = 40
         };
-
-        static Logger& get();
 
         void setLogLevel(LogLevel level);
 
@@ -29,6 +29,7 @@ namespace data_registration
 
             private:
         Logger();
+        static Logger* m_instance;
         LogLevel m_logLevel = LogLevel::INFO;
         void write(const std::string& msg, const std::source_location, LogLevel);
     };

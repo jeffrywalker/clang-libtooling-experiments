@@ -50,7 +50,6 @@ void RegisteredVariable::setDescriptionFromText(const std::string& text)
     {
         return;
     }
-    /// FIXME this doesn't capture tabs
     if (text.find_first_not_of(WHITESPACE) != std::string::npos)
     {
         description = trim(text);

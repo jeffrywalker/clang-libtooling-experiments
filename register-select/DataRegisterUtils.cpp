@@ -1,9 +1,14 @@
+#include <cassert>
+
 #include "DataRegisterUtils.h"
 
+#include "clang/AST/ASTContext.h"
+#include "clang/AST/Comment.h"
 #include "clang/AST/CommentVisitor.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/RawCommentList.h"
 #include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/AST/Type.h"
 
 #include "Logger.h"
 
@@ -53,117 +58,99 @@ void data_registration::readComments(clang::comments::Comment* comment, ASTConte
     }
 }
 
-/// TODO needs to be part of class for the recursive handling
-/// TODO need to support derived classes
-/// TODO need "binder" equivalent class that checks for ability to register. For example, protected/private base classes.
-void data_registration::_migrate_registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd,
-                                                   const data_registration::RegisteredVariable* parent /*= nullptr*/)
+
+std::vector<uint64_t> data_registration::getConstantArrayExtents(const clang::ConstantArrayType* CAT)
 {
-    const clang::RecordDecl* rd         = fd->getParent();
-    const clang::QualType qt            = fd->getType();
-    const clang::Type* t                = qt.getTypePtr();
-    const clang::RecordDecl* typeRecord = t->getAsRecordDecl();
-    bool isBuiltIn                      = t->isBuiltinType();
-    bool isClassOrStruct                = t->isStructureType() || t->isClassType();  /// NOTE: probably better than 'isCompoundType'
-    bool isCompoundType                 = !t->isBuiltinType() && !t->isEnumeralType();
-
-    ASTContext& context = fd->getASTContext();
-    // register entry for this field
-    data_registration::RegisteredVariable regVar;
-    regVar.listName = listName;
-    regVar.setName(fd->getName().str());
-    if (parent != nullptr)
+    assert(CAT && "ConstantArrayType should not be null");
+    CAT = cast<ConstantArrayType>(CAT->getCanonicalTypeInternal());
+    std::vector<uint64_t> Extents;
+    do
     {
-        regVar.setParent(parent);
+        Extents.push_back(CAT->getSize().getZExtValue());
+    } while ((CAT = dyn_cast<ConstantArrayType>(CAT->getElementType())));
+    return Extents;
+}
+
+const clang::QualType data_registration::getConstArrayQualType(const clang::ConstantArrayType* CAT)
+{
+    assert(CAT && "ConstantArrayType should not be null");
+    CAT                = cast<ConstantArrayType>(CAT->getCanonicalTypeInternal());
+    clang::QualType qt = CAT->getElementType();
+    do
+    {
+        clang::QualType qt = CAT->getElementType();
+    } while ((CAT = dyn_cast<ConstantArrayType>(CAT->getElementType())));
+
+    return qt;
+}
+
+const clang::Type* data_registration::getConstArrayType(const clang::ConstantArrayType* CAT)
+{
+    assert(CAT && "ConstantArrayType should not be null");
+    const clang::Type* CT;
+    CAT = cast<ConstantArrayType>(CAT->getCanonicalTypeInternal());
+    CT  = dyn_cast<clang::Type>(CAT->getElementType());
+    do
+    {
+        CT = dyn_cast<clang::Type>(CAT->getElementType());
+    } while ((CAT = dyn_cast<ConstantArrayType>(CAT->getElementType())));
+
+    return CT;
+}
+
+std::vector<uint64_t> data_registration::sub2ind(uint64_t index, std::vector<uint64_t> dimensions)
+{
+    uint64_t numElem = 1;
+    for (const auto& i : dimensions)
+    {
+        numElem *= i;
+    }
+    assert(index <= numElem && "attempted to index out of range");
+
+    std::vector<uint64_t> v;
+    // 1D
+    if (dimensions.size() == 1)
+    {
+        v.push_back(index);
+        return v;
+    }
+    // create the output for n-d
+    for (int i = 0; i < dimensions.size(); i++)
+    {
+        v.push_back(0);
     }
 
-    if (isBuiltIn)
+    uint64_t vi, vk;
+    if (dimensions.size() > 2)
     {
-        if (const clang::BuiltinType* bit = t->getAs<clang::BuiltinType>())
+        // cumulative product
+        std::vector<uint64_t> k;
+        k.push_back(dimensions[0]);
+        for (int i = 1; i < dimensions.size(); i++)
         {
-            clang::PrintingPolicy pp(context.getLangOpts());
-            regVar.typeName = bit->getName(pp).str();
+            k.push_back(k[i - 1] * dimensions[i]);
+        }
+        for (int i = (dimensions.size() - 1); i > 1; i--)
+        {
+            vi    = index % k[i - 1];
+            vk    = (index - vi) / k[i - 1];
+            v[i]  = vk;
+            index = vi;
         }
     }
-    else if (t->isEnumeralType())
-    {
-        if (const clang::EnumType* et = t->getAs<clang::EnumType>())
-        {
-            regVar.enumName = et->getAsTagDecl()->getNameAsString();
-            // add enumerated values as convention to demonstrate reading enum
-            std::string enumConvention      = "";
-            const clang::EnumDecl* enumDecl = et->getDecl();
-            for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
-            {
-                enumConvention += it->getNameAsString() + "(" + std::to_string(it->getInitVal().getSExtValue()) + ") ";
-            }
-            regVar.convention = enumConvention;
-        }
-    }
-    else
-    {
-        regVar.typeName = typeRecord->getNameAsString();
-    }
 
-    if (auto comment = context.getLocalCommentForDeclUncached(fd))
-    {
-        readComments(comment, context, regVar);
-    }
-    if (regVar.units == data_registration::INHERIT_UNIT && parent != nullptr)
-    {
-        regVar.units = parent->units;
-    }
+    vi   = index % dimensions[0];
+    v[1] = (index - vi) / dimensions[0];
+    v[0] = vi;
+    return v;
+}
 
-    if (isCompoundType)
+std::string data_registration::getArrayAccess(const std::vector<uint64_t>& v)
+{
+    std::string s = "";
+    for (const auto& i : v)
     {
-        regVar.dump();
-
-        // check for base classes
-        const clang::CXXRecordDecl* tcxx = t->getAsCXXRecordDecl();
-        if (tcxx->getNumBases() > 0)
-        {
-            for (const auto itr : tcxx->bases())
-            {
-                const clang::RecordDecl* baseType = itr.getType().getTypePtr()->getAsRecordDecl();
-                std::string baseName              = baseType->getNameAsString();
-                std::stringstream ss;
-                ss << "base: " << baseName;
-                bool canRegisterBase = false;
-                if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_public)
-                {
-                    ss << " is public\n";
-                    canRegisterBase = true;
-                }
-                else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_protected)
-                {
-                    ss << " is protected\n";
-                    canRegisterBase = true;
-                }
-                else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_private)
-                {
-                    ss << " is private\n";
-                    /// TODO would require check for public/protected register method
-                }
-                Logger::get().debug(ss.str());
-                if (canRegisterBase)
-                {
-                    for (const auto* childField : baseType->fields())
-                    {
-                        _migrate_registerFieldDecl(listName, childField, &regVar);
-                    }
-                }
-            }
-        }
-
-        // traverse the children
-        for (const auto* childField : typeRecord->fields())
-        {
-            _migrate_registerFieldDecl(listName, childField, &regVar);
-        }
+        s += "[" + std::to_string(i) + "]";
     }
-    else
-    {
-        regVar.isBasicType = true;
-        regVar.dump();
-    }
+    return s;
 }

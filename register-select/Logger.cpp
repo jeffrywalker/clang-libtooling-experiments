@@ -3,18 +3,20 @@
 
 using namespace data_registration;
 
+Logger* Logger::m_instance = nullptr;
+
 Logger::Logger()
 {
 }
 
 Logger& Logger::get()
 {
-    static Logger* instance = nullptr;
-    if (!instance)
+    // static Logger* instance = nullptr;
+    if (m_instance == nullptr)
     {
-        instance = new Logger();
+        m_instance = new Logger();
     }
-    return *instance;
+    return *m_instance;
 }
 
 void Logger::setLogLevel(LogLevel level)

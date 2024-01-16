@@ -1,113 +1,715 @@
 #include "GroundReaction.h"
 #include <string>
+#include <chrono>
 #include <vector>
 #include <utility>
-void registerReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName){}
-void registerVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* varType, void* address, const wchar_t* enumName = nullptr){}
-void GroundReaction::registerData()
-{
-registerVar(L"INP.alt", L"", L"ft", L"", L"", L"", L"double", &(alt));
-registerVar(L"INP.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(velocity));
-registerReference(L"OUT.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
-registerVar(L"OUT.forces.x", L"", L"N", L"", L"", L"", L"double", &(forces.x));
-registerVar(L"OUT.forces.y", L"", L"N", L"", L"", L"", L"double", &(forces.y));
-registerVar(L"OUT.forces.z", L"", L"N", L"", L"", L"", L"double", &(forces.z));
-registerReference(L"OUT.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
-registerVar(L"OUT.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(moments.x));
-registerVar(L"OUT.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(moments.y));
-registerVar(L"OUT.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(moments.z));
-registerReference(L"INT.leftGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
-registerReference(L"INT.leftGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
-registerVar(L"INT.leftGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.x));
-registerVar(L"INT.leftGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.y));
-registerVar(L"INT.leftGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(leftGear.position.z));
-registerVar(L"INT.leftGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(leftGear.velocity));
-registerReference(L"INT.leftGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
-registerVar(L"INT.leftGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.x));
-registerVar(L"INT.leftGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.y));
-registerVar(L"INT.leftGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(leftGear.forces.z));
-registerReference(L"INT.leftGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
-registerVar(L"INT.leftGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.x));
-registerVar(L"INT.leftGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.y));
-registerVar(L"INT.leftGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(leftGear.moments.z));
-registerVar(L"INT.leftGear.frameCount", L"", L"", L"", L"", L"", L"int", &(leftGear.frameCount));
-registerReference(L"INT.leftGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.leftGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(leftGear.leftTire.radius));
-registerVar(L"INT.leftGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(leftGear.leftTire.pressure));
-registerVar(L"INT.leftGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(leftGear.leftTire.isFlat));
-registerReference(L"INT.leftGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.leftGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(leftGear.rightTire.radius));
-registerVar(L"INT.leftGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(leftGear.rightTire.pressure));
-registerVar(L"INT.leftGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(leftGear.rightTire.isFlat));
-registerVar(L"INT.leftGear.junkVar", L"", L"", L"", L"", L"", L"double", &(leftGear.junkVar));
-registerVar(L"INT.leftGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(leftGear.isInReset));
-registerReference(L"INT.leftGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
-registerReference(L"INT.leftGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
-registerVar(L"INT.leftGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.x));
-registerVar(L"INT.leftGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.y));
-registerVar(L"INT.leftGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(leftGear.debug.acceleration.z));
-registerVar(L"INT.leftGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(leftGear.debug.hasContact));
-registerReference(L"INT.rightGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
-registerReference(L"INT.rightGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
-registerVar(L"INT.rightGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.x));
-registerVar(L"INT.rightGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.y));
-registerVar(L"INT.rightGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(rightGear.position.z));
-registerVar(L"INT.rightGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(rightGear.velocity));
-registerReference(L"INT.rightGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
-registerVar(L"INT.rightGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.x));
-registerVar(L"INT.rightGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.y));
-registerVar(L"INT.rightGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(rightGear.forces.z));
-registerReference(L"INT.rightGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
-registerVar(L"INT.rightGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.x));
-registerVar(L"INT.rightGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.y));
-registerVar(L"INT.rightGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(rightGear.moments.z));
-registerVar(L"INT.rightGear.frameCount", L"", L"", L"", L"", L"", L"int", &(rightGear.frameCount));
-registerReference(L"INT.rightGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.rightGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(rightGear.leftTire.radius));
-registerVar(L"INT.rightGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(rightGear.leftTire.pressure));
-registerVar(L"INT.rightGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(rightGear.leftTire.isFlat));
-registerReference(L"INT.rightGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.rightGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(rightGear.rightTire.radius));
-registerVar(L"INT.rightGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(rightGear.rightTire.pressure));
-registerVar(L"INT.rightGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(rightGear.rightTire.isFlat));
-registerVar(L"INT.rightGear.junkVar", L"", L"", L"", L"", L"", L"double", &(rightGear.junkVar));
-registerVar(L"INT.rightGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(rightGear.isInReset));
-registerReference(L"INT.rightGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
-registerReference(L"INT.rightGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
-registerVar(L"INT.rightGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.x));
-registerVar(L"INT.rightGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.y));
-registerVar(L"INT.rightGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(rightGear.debug.acceleration.z));
-registerVar(L"INT.rightGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(rightGear.debug.hasContact));
-registerReference(L"INT.noseGear", L"", L"", L"", L"", L"", L"", L"LandingGear");
-registerReference(L"INT.noseGear.position", L"", L"", L"ft", L"", L"", L"", L"Vector3");
-registerVar(L"INT.noseGear.position.x", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.x));
-registerVar(L"INT.noseGear.position.y", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.y));
-registerVar(L"INT.noseGear.position.z", L"", L"ft", L"", L"", L"", L"double", &(noseGear.position.z));
-registerVar(L"INT.noseGear.velocity", L"", L"ft/s", L"", L"", L"", L"double", &(noseGear.velocity));
-registerReference(L"INT.noseGear.forces", L"", L"", L"N", L"", L"", L"", L"Vector3");
-registerVar(L"INT.noseGear.forces.x", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.x));
-registerVar(L"INT.noseGear.forces.y", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.y));
-registerVar(L"INT.noseGear.forces.z", L"", L"N", L"", L"", L"", L"double", &(noseGear.forces.z));
-registerReference(L"INT.noseGear.moments", L"", L"", L"N*m", L"", L"", L"", L"Vector3");
-registerVar(L"INT.noseGear.moments.x", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.x));
-registerVar(L"INT.noseGear.moments.y", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.y));
-registerVar(L"INT.noseGear.moments.z", L"", L"N*m", L"", L"", L"", L"double", &(noseGear.moments.z));
-registerVar(L"INT.noseGear.frameCount", L"", L"", L"", L"", L"", L"int", &(noseGear.frameCount));
-registerReference(L"INT.noseGear.leftTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.noseGear.leftTire.radius", L"", L"ft", L"", L"", L"", L"double", &(noseGear.leftTire.radius));
-registerVar(L"INT.noseGear.leftTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(noseGear.leftTire.pressure));
-registerVar(L"INT.noseGear.leftTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(noseGear.leftTire.isFlat));
-registerReference(L"INT.noseGear.rightTire", L"", L"", L"", L"", L"", L"", L"Tire");
-registerVar(L"INT.noseGear.rightTire.radius", L"", L"ft", L"", L"", L"", L"double", &(noseGear.rightTire.radius));
-registerVar(L"INT.noseGear.rightTire.pressure", L"", L"lbf/in^2", L"", L"", L"", L"double", &(noseGear.rightTire.pressure));
-registerVar(L"INT.noseGear.rightTire.isFlat", L"", L"", L"", L"", L"", L"bool", &(noseGear.rightTire.isFlat));
-registerVar(L"INT.noseGear.junkVar", L"", L"", L"", L"", L"", L"double", &(noseGear.junkVar));
-registerVar(L"INT.noseGear.isInReset", L"", L"", L"", L"", L"", L"bool", &(noseGear.isInReset));
-registerReference(L"INT.noseGear.debug", L"", L"", L"", L"", L"", L"", L"DebugData");
-registerReference(L"INT.noseGear.debug.acceleration", L"", L"", L"ft/s^2", L"", L"", L"", L"Vector3");
-registerVar(L"INT.noseGear.debug.acceleration.x", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.x));
-registerVar(L"INT.noseGear.debug.acceleration.y", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.y));
-registerVar(L"INT.noseGear.debug.acceleration.z", L"", L"ft/s^2", L"", L"", L"", L"double", &(noseGear.debug.acceleration.z));
-registerVar(L"INT.noseGear.debug.hasContact", L"", L"", L"", L"", L"", L"bool", &(noseGear.debug.hasContact));
 
+// HACK
+class IVarDef {
+public:
+    enum vartype { ENUM };
+    template <typename T> static vartype getVarType(T var){}
+};
+// HACK
+class IVarList {
+public:
+    void addReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName)
+    {}
+    void addVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, IVarDef::vartype varType, void* address, const wchar_t* enumName = nullptr)
+    {}
+    bool checkForChange(const wchar_t*){}
+    void alignToList(IVarList*){}
+    IVarList* createComparisonList(){}
+};
+// HACK
+class IVarData {
+public:
+    IVarList* getList(const wchar_t* name){}
+    IVarList* createVarList(const wchar_t* name, unsigned int* r=(unsigned int*)nullptr){}
+};
+
+
+bool GroundReaction::registerData(const std::wstring& listName, IVarData* pVarData)
+{
+    // HACK always unique hash
+    std::wstring hack_changingHash = listName + std::to_wstring(std::chrono::steady_clock().now().time_since_epoch().count());
+    IVarList* pvl = pVarData->getList(listName.c_str());
+    IVarList* pvl_old = pvl;
+    bool doAlign = false;
+    if (pvl != nullptr)
+    {
+        if (pvl->checkForChange(hack_changingHash.c_str()))
+        {
+            pvl = pvl->createComparisonList();
+            doAlign = true;
+        }
+    }
+    if (pvl == nullptr)
+    {
+        pvl = pVarData->createVarList(listName.c_str());
+        if (pvl == nullptr)
+            return false;
+        pvl->checkForChange(hack_changingHash.c_str());
+    }
+
+    pvl->addVar(L"INP.alt",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(alt),
+        /*address*/ &(alt));
+    pvl->addVar(L"INP.velocity",
+        /*description*/ L"",
+        /*units*/ L"ft/s",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(velocity),
+        /*address*/ &(velocity));
+    pvl->addReference(L"OUT.forces",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"OUT.forces.x",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(forces.x),
+        /*address*/ &(forces.x));
+    pvl->addVar(L"OUT.forces.y",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(forces.y),
+        /*address*/ &(forces.y));
+    pvl->addVar(L"OUT.forces.z",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(forces.z),
+        /*address*/ &(forces.z));
+    pvl->addReference(L"OUT.moments",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"OUT.moments.x",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(moments.x),
+        /*address*/ &(moments.x));
+    pvl->addVar(L"OUT.moments.y",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(moments.y),
+        /*address*/ &(moments.y));
+    pvl->addVar(L"OUT.moments.z",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(moments.z),
+        /*address*/ &(moments.z));
+    pvl->addVar(L"DEV.expTest_1",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(expTest_1),
+        /*address*/ &(expTest_1));
+    pvl->addVar(L"DEV.expTest_2",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(expTest_2),
+        /*address*/ &(expTest_2));
+    pvl->addVar(L"DEV.isExperimental",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(isExperimental),
+        /*address*/ &(isExperimental));
+    pvl->addReference(L"INT.leftGear",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"LandingGear");
+    pvl->addReference(L"INT.leftGear.position",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.leftGear.position.x",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.position.x),
+        /*address*/ &(leftGear.position.x));
+    pvl->addVar(L"INT.leftGear.position.y",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.position.y),
+        /*address*/ &(leftGear.position.y));
+    pvl->addVar(L"INT.leftGear.position.z",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.position.z),
+        /*address*/ &(leftGear.position.z));
+    pvl->addVar(L"INT.leftGear.velocity",
+        /*description*/ L"",
+        /*units*/ L"ft/s",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.velocity),
+        /*address*/ &(leftGear.velocity));
+    pvl->addReference(L"INT.leftGear.forces",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.leftGear.forces.x",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.forces.x),
+        /*address*/ &(leftGear.forces.x));
+    pvl->addVar(L"INT.leftGear.forces.y",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.forces.y),
+        /*address*/ &(leftGear.forces.y));
+    pvl->addVar(L"INT.leftGear.forces.z",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.forces.z),
+        /*address*/ &(leftGear.forces.z));
+    pvl->addReference(L"INT.leftGear.moments",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.leftGear.moments.x",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.moments.x),
+        /*address*/ &(leftGear.moments.x));
+    pvl->addVar(L"INT.leftGear.moments.y",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.moments.y),
+        /*address*/ &(leftGear.moments.y));
+    pvl->addVar(L"INT.leftGear.moments.z",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.moments.z),
+        /*address*/ &(leftGear.moments.z));
+    pvl->addVar(L"INT.leftGear.frameCount",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.frameCount),
+        /*address*/ &(leftGear.frameCount));
+    pvl->addReference(L"INT.leftGear.leftTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.leftGear.leftTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.leftTire.radius),
+        /*address*/ &(leftGear.leftTire.radius));
+    pvl->addVar(L"INT.leftGear.leftTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.leftTire.pressure),
+        /*address*/ &(leftGear.leftTire.pressure));
+    pvl->addVar(L"INT.leftGear.leftTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.leftTire.isFlat),
+        /*address*/ &(leftGear.leftTire.isFlat));
+    pvl->addReference(L"INT.leftGear.rightTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.leftGear.rightTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.rightTire.radius),
+        /*address*/ &(leftGear.rightTire.radius));
+    pvl->addVar(L"INT.leftGear.rightTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.rightTire.pressure),
+        /*address*/ &(leftGear.rightTire.pressure));
+    pvl->addVar(L"INT.leftGear.rightTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(leftGear.rightTire.isFlat),
+        /*address*/ &(leftGear.rightTire.isFlat));
+    pvl->addReference(L"INT.rightGear",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"LandingGear");
+    pvl->addReference(L"INT.rightGear.position",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.rightGear.position.x",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.position.x),
+        /*address*/ &(rightGear.position.x));
+    pvl->addVar(L"INT.rightGear.position.y",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.position.y),
+        /*address*/ &(rightGear.position.y));
+    pvl->addVar(L"INT.rightGear.position.z",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.position.z),
+        /*address*/ &(rightGear.position.z));
+    pvl->addVar(L"INT.rightGear.velocity",
+        /*description*/ L"",
+        /*units*/ L"ft/s",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.velocity),
+        /*address*/ &(rightGear.velocity));
+    pvl->addReference(L"INT.rightGear.forces",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.rightGear.forces.x",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.forces.x),
+        /*address*/ &(rightGear.forces.x));
+    pvl->addVar(L"INT.rightGear.forces.y",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.forces.y),
+        /*address*/ &(rightGear.forces.y));
+    pvl->addVar(L"INT.rightGear.forces.z",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.forces.z),
+        /*address*/ &(rightGear.forces.z));
+    pvl->addReference(L"INT.rightGear.moments",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.rightGear.moments.x",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.moments.x),
+        /*address*/ &(rightGear.moments.x));
+    pvl->addVar(L"INT.rightGear.moments.y",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.moments.y),
+        /*address*/ &(rightGear.moments.y));
+    pvl->addVar(L"INT.rightGear.moments.z",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.moments.z),
+        /*address*/ &(rightGear.moments.z));
+    pvl->addVar(L"INT.rightGear.frameCount",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.frameCount),
+        /*address*/ &(rightGear.frameCount));
+    pvl->addReference(L"INT.rightGear.leftTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.rightGear.leftTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.leftTire.radius),
+        /*address*/ &(rightGear.leftTire.radius));
+    pvl->addVar(L"INT.rightGear.leftTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.leftTire.pressure),
+        /*address*/ &(rightGear.leftTire.pressure));
+    pvl->addVar(L"INT.rightGear.leftTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.leftTire.isFlat),
+        /*address*/ &(rightGear.leftTire.isFlat));
+    pvl->addReference(L"INT.rightGear.rightTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.rightGear.rightTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.rightTire.radius),
+        /*address*/ &(rightGear.rightTire.radius));
+    pvl->addVar(L"INT.rightGear.rightTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.rightTire.pressure),
+        /*address*/ &(rightGear.rightTire.pressure));
+    pvl->addVar(L"INT.rightGear.rightTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(rightGear.rightTire.isFlat),
+        /*address*/ &(rightGear.rightTire.isFlat));
+    pvl->addReference(L"INT.noseGear",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"LandingGear");
+    pvl->addReference(L"INT.noseGear.position",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.noseGear.position.x",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.position.x),
+        /*address*/ &(noseGear.position.x));
+    pvl->addVar(L"INT.noseGear.position.y",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.position.y),
+        /*address*/ &(noseGear.position.y));
+    pvl->addVar(L"INT.noseGear.position.z",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.position.z),
+        /*address*/ &(noseGear.position.z));
+    pvl->addVar(L"INT.noseGear.velocity",
+        /*description*/ L"",
+        /*units*/ L"ft/s",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.velocity),
+        /*address*/ &(noseGear.velocity));
+    pvl->addReference(L"INT.noseGear.forces",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.noseGear.forces.x",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.forces.x),
+        /*address*/ &(noseGear.forces.x));
+    pvl->addVar(L"INT.noseGear.forces.y",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.forces.y),
+        /*address*/ &(noseGear.forces.y));
+    pvl->addVar(L"INT.noseGear.forces.z",
+        /*description*/ L"",
+        /*units*/ L"N",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.forces.z),
+        /*address*/ &(noseGear.forces.z));
+    pvl->addReference(L"INT.noseGear.moments",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Vector3");
+    pvl->addVar(L"INT.noseGear.moments.x",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.moments.x),
+        /*address*/ &(noseGear.moments.x));
+    pvl->addVar(L"INT.noseGear.moments.y",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.moments.y),
+        /*address*/ &(noseGear.moments.y));
+    pvl->addVar(L"INT.noseGear.moments.z",
+        /*description*/ L"",
+        /*units*/ L"N*m",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.moments.z),
+        /*address*/ &(noseGear.moments.z));
+    pvl->addVar(L"INT.noseGear.frameCount",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.frameCount),
+        /*address*/ &(noseGear.frameCount));
+    pvl->addReference(L"INT.noseGear.leftTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.noseGear.leftTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.leftTire.radius),
+        /*address*/ &(noseGear.leftTire.radius));
+    pvl->addVar(L"INT.noseGear.leftTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.leftTire.pressure),
+        /*address*/ &(noseGear.leftTire.pressure));
+    pvl->addVar(L"INT.noseGear.leftTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.leftTire.isFlat),
+        /*address*/ &(noseGear.leftTire.isFlat));
+    pvl->addReference(L"INT.noseGear.rightTire",
+        /*array*/ L"",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*structName*/ L"Tire");
+    pvl->addVar(L"INT.noseGear.rightTire.radius",
+        /*description*/ L"",
+        /*units*/ L"ft",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.rightTire.radius),
+        /*address*/ &(noseGear.rightTire.radius));
+    pvl->addVar(L"INT.noseGear.rightTire.pressure",
+        /*description*/ L"",
+        /*units*/ L"lbf/in^2",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.rightTire.pressure),
+        /*address*/ &(noseGear.rightTire.pressure));
+    pvl->addVar(L"INT.noseGear.rightTire.isFlat",
+        /*description*/ L"",
+        /*units*/ L"",
+        /*convention*/ L"",
+        /*default*/ L"",
+        /*range*/ L"",
+        /*varType*/ IVarDef::getVarType(noseGear.rightTire.isFlat),
+        /*address*/ &(noseGear.rightTire.isFlat));
+    if (doAlign)
+        pvl_old->alignToList(pvl);
+    // pVarList = pvl;
+    return true;
 }

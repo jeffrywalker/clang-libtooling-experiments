@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "Logger.h"
+#include "str_utils.h"
 
 #include <fstream>
 #include <sstream>
@@ -9,10 +10,12 @@
 
 using namespace data_registration;
 
+Config* Config::m_instance = nullptr;
+
 enum class InitBlock
 {
     SETUP = 0,
-    CLASSES,
+    CLASS_FILTERS,
     LISTS
 };
 
@@ -22,12 +25,12 @@ Config::Config()
 
 Config& Config::get()
 {
-    static Config* instance = nullptr;
-    if (!instance)
+    // static Config* instance = nullptr;
+    if (m_instance == nullptr)
     {
-        instance = new Config();
+        m_instance = new Config();
     }
-    return *instance;
+    return *m_instance;
 }
 
 void Config::read(const std::string& file_name)
@@ -66,16 +69,23 @@ void Config::read(const std::string& file_name)
             {
                 initBlock = InitBlock::SETUP;
             }
-            else
+            else if (line.substr(1).starts_with("lists"))
             {
                 initBlock = InitBlock::LISTS;
+            }
+            else if (line.substr(1).starts_with("class"))
+            {
+                initBlock = InitBlock::CLASS_FILTERS;
+            }
+            else
+            {
+                throw std::runtime_error("Invalid section block." + line);
             }
             continue;
         }
 
-        /// FIXME exclude filters
-        bool _unused_doRegister = line[0] == '+' ? true : false;
-        size_t space            = line.find(' ');
+        bool doRegister = line[0] == '+' ? true : false;
+        size_t space    = line.find(' ');
         if (space == std::string::npos)
         {
             throw std::runtime_error("Invalid line in config file! Each line must have token separated with space from object "
@@ -89,24 +99,38 @@ void Config::read(const std::string& file_name)
         name_without_spaces.erase(std::remove(name_without_spaces.begin(), name_without_spaces.end(), ' '),
                                   name_without_spaces.end());
 
-        if (initBlock == InitBlock::SETUP)
+        switch (initBlock)
         {
-            if (nodeName == "rootClass")
-            {
-                rootClassName = name_without_spaces;
-            }
-            if (nodeName == "include")
-            {
-                outputInclude = name_without_spaces;
-            }
-        }
-        else
-        {
-            Logger::get().info("requested ClassItem: " + name + " under node: " + nodeName);
-            RegisterRequest request;
-            request.classItem = name;
-            request.node      = nodeName;
-            m_register.push_back(request);
+            case InitBlock::SETUP:
+                if (nodeName == "rootClass")
+                {
+                    rootClassName = name_without_spaces;
+                }
+                if (nodeName == "include")
+                {
+                    outputInclude = name_without_spaces;
+                }
+                break;
+            case InitBlock::CLASS_FILTERS:
+                if (doRegister)
+                {
+                    if (m_classIncludeFilters.count(name_without_spaces))
+                    {
+                        Logger::get().error("Duplicate Entry: " + name_without_spaces);
+                    }
+                    else
+                    {
+                        m_classIncludeFilters.insert(name_without_spaces);
+                    }
+                }
+                break;
+            case InitBlock::LISTS:
+                Logger::get().info("requested ClassItem: " + name + " under node: " + nodeName);
+                RegisterRequest request;
+                request.classItem = name;
+                request.node      = nodeName;
+                m_register.push_back(request);
+                break;
         }
     }
 }
@@ -116,7 +140,6 @@ const Config::t_register& Config::getRegisters() const
     return m_register;
 }
 
-// std::pair<bool, RegisterRequest*> Config::doRegister_classField(const std::string& name)
 bool Config::doRegister_classField(const std::string& name)
 {
     for (auto& it : m_register)
@@ -145,4 +168,28 @@ const RegisterRequest* Config::getRequest(const std::string& name)
         }
     }
     return nullptr;
+}
+
+bool Config::doRegisterImplicitClassField(const std::string& classFieldName)
+{
+    if (m_classIncludeFilters.size() == 0)
+    {
+        return true;  // no filters
+    }
+    if (m_classIncludeFilters.count(classFieldName))
+    {
+        return true;  // explicitely included
+    }
+    /// NOTE: this is assuming classFieldName abides by "class::fieldname" such that the leading entry is the class
+    std::string className = str_utils::base_namespace(classFieldName);
+    // at this point we only return true if a filter does not exist for this namespace
+    for (const auto& i : m_classIncludeFilters)
+    {
+        std::string filterClass = str_utils::base_namespace(i);
+        if (className == filterClass)
+        {
+            return false;
+        }
+    }
+    return true;
 }

@@ -44,9 +44,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/register-select.exe",
             "args": [
-                "../register-tests/case-1/main.h",
+                "../register-tests/case-0/main.h",
                 "-config",
-                "../register-tests/case-1/config.cfg",
+                "../register-tests/case-0/config.cfg",
                 "-log-level",
                 "DEBUG",
                 "--",

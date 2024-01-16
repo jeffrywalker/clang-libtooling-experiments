@@ -26,8 +26,8 @@ namespace ns_GroundReaction
 
     struct Experimental
     {
-        double ignore_1;
-        double ignore_2;
+        double expTest_1;
+        double expTest_2;
         bool isExperimental;
     };
 }  // namespace ns_GroundReaction
@@ -35,7 +35,7 @@ namespace ns_GroundReaction
 
 class GroundReaction : public ns_GroundReaction::ModelData, protected ns_GroundReaction::Experimental
 {
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
 
     LandingGear leftGear;
     LandingGear rightGear;

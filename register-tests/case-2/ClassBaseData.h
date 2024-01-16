@@ -34,5 +34,5 @@ namespace ns_ShipData
 
 class Ship : public ns_ShipData::DataModel
 {
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
 };

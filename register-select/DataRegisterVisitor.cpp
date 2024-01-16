@@ -17,7 +17,7 @@ DataRegisterVisitor::DataRegisterVisitor(CompilerInstance* ci) : ast_context(&(c
     Config& config = Config::get();
     Logger& logger = Logger::get();
 
-    /// TODO all options
+    /// TODO all other log-level options
     if (O_log_level == "DEBUG")
     {
         logger.setLogLevel(Logger::LogLevel::DEBUG);
@@ -34,9 +34,11 @@ DataRegisterVisitor::DataRegisterVisitor(CompilerInstance* ci) : ast_context(&(c
         clang::DiagnosticsEngine& di = ci->getDiagnostics();
         di.setSuppressAllDiagnostics(true);
     }
+    logger.info("configuration loaded.");
 }
 DataRegisterVisitor::~DataRegisterVisitor()
 {
+    Logger::get().debug("DataRegisterVisitor shutting down.");
 }
 
 bool DataRegisterVisitor::shouldVisitTemplateInstantiations() const

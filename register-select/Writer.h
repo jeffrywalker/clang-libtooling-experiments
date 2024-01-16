@@ -8,6 +8,7 @@ namespace data_registration
     {
             public:
         static Writer& get();
+        Writer(const Writer& old) = delete;
         bool openFile(const std::string& fileName);
         bool close();
         /// direct write to opened stream
@@ -21,6 +22,10 @@ namespace data_registration
         void writeRegister();
 
             private:
+        Writer();
+        static Writer* m_instance;
+        std::string m_activeFile;
+
         std::ofstream m_out;
 
         std::stringstream m_enum;

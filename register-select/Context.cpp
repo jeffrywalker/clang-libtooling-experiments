@@ -1,12 +1,15 @@
 #include "Context.h"
 #include "Logger.h"
 #include "Writer.h"
+#include "str_utils.h"
 
 using namespace data_registration;
+using namespace str_utils;
 
 Context::Context()
 {
     m_ids.clear();
+    m_enumIds.clear();
 }
 
 void Context::generate(const Config& config)
@@ -22,26 +25,80 @@ void Context::generate(const Config& config)
         Writer::get().write("#include \"" + config.outputInclude + "\"\n");
     }
     /// HACK needs user config
+    std::stringstream hackCode;
+    hackCode
+        << "#include <string>\n"
+        << "#include <chrono>\n"
+        << "#include <vector>\n"
+        << "#include <utility>\n\n"
+        << "// HACK\n"
+        << "class IVarDef {\npublic:\n"
+        << tab() << "enum vartype { ENUM };\n"
+        << tab() << "template <typename T> static vartype getVarType(T var){}\n"
+        << "};\n"
+        << "// HACK\n"
+        << "class IVarList {\npublic:\n"
+        << tab()
+        << "void addReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* "
+           "units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName)\n"
+        << tab() << "{}\n"
+        << tab()
+        << "void addVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, "
+           "const wchar_t* defaultValue, const wchar_t* range, IVarDef::vartype varType, void* address, const wchar_t* enumName = "
+           "nullptr)\n"
+        << tab() << "{}\n"
+        << tab() << "bool checkForChange(const wchar_t*){}\n"
+        << tab() << "void alignToList(IVarList*){}\n"
+        << tab() << "IVarList* createComparisonList(){}\n"
+        << "};\n"
+        << "// HACK\n"
+        << "class IVarData {\npublic:\n"
+        << tab() << "IVarList* getList(const wchar_t* name){}\n"
+        << tab() << "IVarList* createVarList(const wchar_t* name, unsigned int* r=(unsigned int*)nullptr){}\n"
+        << "};\n"
+        << "\n\n";
+
     std::stringstream ss;
-    ss << "#include <string>\n";
-    ss << "#include <vector>\n"
-       << "#include <utility>\n";
-    ss << "void registerReference(const wchar_t* name, const wchar_t* arrayDesignation, const wchar_t* description, const wchar_t* "
-          "units, const wchar_t* convention, const wchar_t* defaultValue, const wchar_t* range, const wchar_t* structName){}\n";
-    ss << "void registerVar(const wchar_t* name, const wchar_t* description, const wchar_t* units, const wchar_t* convention, "
-          "const wchar_t* defaultValue, const wchar_t* range, const wchar_t* varType, void* address, const wchar_t* enumName = "
-          "nullptr){}\n";
-    ss << "void " << config.rootClassName << "::registerData()\n{\n";
+    ss << hackCode.str()  //
+       << "bool " << config.rootClassName << "::registerData(const std::wstring& listName, IVarData* pVarData)\n{\n"
+       << tab() << "// HACK always unique hash\n"
+       << tab()
+       << "std::wstring hack_changingHash = listName + "
+          "std::to_wstring(std::chrono::steady_clock().now().time_since_epoch().count());\n"
+       << tab() << "IVarList* pvl = pVarData->getList(listName.c_str());\n"
+       << tab() << "IVarList* pvl_old = pvl;\n"
+       << tab() << "bool doAlign = false;\n"
+       << tab() << "if (pvl != nullptr)\n"
+       << tab() << "{\n"
+       << tab(2) << "if (pvl->checkForChange(hack_changingHash.c_str()))\n"
+       << tab(2) << "{\n"
+       << tab(3) << "pvl = pvl->createComparisonList();\n"
+       << tab(3) << "doAlign = true;\n"
+       << tab(2) << "}\n"
+       << tab() << "}\n"
+       << tab() << "if (pvl == nullptr)\n"
+       << tab() << "{\n"
+       << tab(2) << "pvl = pVarData->createVarList(listName.c_str());\n"
+       << tab(2) << "if (pvl == nullptr)\n"
+       << tab(3) << "return false;\n"
+       << tab(2) << "pvl->checkForChange(hack_changingHash.c_str());\n"
+       << tab() << "}\n\n";
     Writer::get().write(ss.str());
 
     for (auto itr : m_rootRegisters)
     {
         itr.first->generateRegistration(*this, itr.second);
     }
-    /// HACK
     Writer::get().writeEnum();
     Writer::get().writeRegister();
-    Writer::get().write("\n}");
+    // closing code
+    ss.str("");
+    ss << tab() << "if (doAlign)\n"
+       << tab(2) << "pvl_old->alignToList(pvl);\n"
+       << tab() << "// pVarList = pvl;\n"
+       << tab() << "return true;\n"
+       << "}";
+    Writer::get().write(ss.str());
     Writer::get().close();
 
     // check that all requests were made
@@ -65,6 +122,17 @@ void Context::add(spDataRegister& dataRegister, const std::string& classItem)
     Logger::get().info("Adding ID: " + dataRegister->id());
 
     m_rootRegisters.push_back(std::make_pair(dataRegister, classItem));
-    // m_rootRegisters.push_back(dataRegister);
     m_ids.insert(dataRegister->id());
+}
+
+void Context::registerEnum(const std::string& enumName, const std::string& enumCode)
+{
+    if (enumName.empty() || m_enumIds.count(enumName))
+    {
+        return;
+    }
+    m_enumIds.insert(enumName);
+    Logger::get().info("Adding ENUM: " + enumName);
+
+    Writer::get().bufferEnum(enumCode);
 }

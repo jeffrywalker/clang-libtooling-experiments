@@ -1,26 +1,36 @@
 #include "Writer.h"
+#include "Logger.h"
 
 using namespace data_registration;
+Writer* Writer::m_instance = nullptr;
+
+Writer::Writer()
+{
+}
 
 Writer& Writer::get()
 {
-    static Writer* instance = nullptr;
-    if (!instance)
+    // static Writer* instance = nullptr;
+    if (m_instance == nullptr)
     {
-        instance = new Writer();
+        m_instance = new Writer();
     }
-    return *instance;
+    return *m_instance;
 }
 
 bool Writer::openFile(const std::string& fileName)
 {
     if (m_out.is_open())
     {
+        Logger::get().error("Failed to open file: " + fileName);
         return false;
     }
     m_out.open(fileName);
     m_enum.clear();
     m_register.clear();
+
+    Logger::get().info("Opened file for writing: " + fileName);
+    m_activeFile = fileName;
     return true;
 }
 void Writer::writeEnum()
@@ -45,6 +55,7 @@ void Writer::bufferRegister(const std::string& s)
 bool Writer::close()
 {
     m_out.close();
+    Logger::get().info("Closed file: " + m_activeFile);
     return true;
 }
 

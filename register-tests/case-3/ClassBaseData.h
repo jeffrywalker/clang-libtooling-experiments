@@ -56,7 +56,7 @@ namespace ns_AircraftData
 class Ship : public ns_ShipData::DataModel
 {
         public:
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
     /// \units kts
     double cruiseSpeed;
     /// \units deg
@@ -65,12 +65,12 @@ class Ship : public ns_ShipData::DataModel
 };
 class Aircraft : public ns_AircraftData::Model
 {
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
 };
 
 class Vehicles
 {
-    void registerData();
+    bool registerData(const std::wstring& listName, IVarData* pVarData);
     void registerShip(Ship& ship);
     void registerAv(Aircraft& av);
 

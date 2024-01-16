@@ -1,12 +1,9 @@
-# TODO
-- [ ] registration wihin nested class
+# Action Items
+- [x] registration wihin nested class
     - this can mitigate the need to expose data, but adds complexity of registration code being distributed
     - this will assert (you) have privelages to modify the nested class, which may not be true
-- [ ] add cases in order of complexity
-- [ ] add case specific to current workflow
-- [ ] add example for derived class
+- [x] add example for derived class
     - derived + nested may create complex scenario
-- [ ] add (lazy) simple case: data is registered in duplicate
 - [ ] add context of limitation with current workflow (rotor)
 
 # Requirements

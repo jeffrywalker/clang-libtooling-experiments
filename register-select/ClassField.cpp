@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Writer.h"
 
+#include "clang/AST/Decl.h"
 #include "clang/AST/DeclCXX.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 
@@ -21,19 +22,16 @@ std::string ClassField::id() const
 
 void ClassField::generateRegistration(Context& context, const std::string& classItem)
 {
+    m_context                      = &context;
     const RegisterRequest* request = Config::get().getRequest(classItem);
     std::string node               = "ERROR";
     if (request != nullptr)
     {
         node = request->node;
     }
-    // registerFieldDecl(request.node, m_F);
     registerFieldDecl(node, m_F);
 }
 
-/// TODO needs to be part of class for the recursive handling
-/// TODO need to support derived classes
-/// TODO need "binder" equivalent class that checks for ability to register. For example, protected/private base classes.
 void ClassField::registerFieldDecl(const std::string& listName, const clang::FieldDecl* fd,
                                    const data_registration::RegisteredVariable* parent /*= nullptr*/)
 {
@@ -41,67 +39,25 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
     const clang::QualType qt            = fd->getType();
     const clang::Type* t                = qt.getTypePtr();
     const clang::RecordDecl* typeRecord = t->getAsRecordDecl();
-    bool isBuiltIn                      = t->isBuiltinType();
-    /// TODO this is probably better than the 'isCompoundType' below
-    bool isClassOrStruct = t->isStructureType() || t->isClassType();
-    bool isCompoundType  = !t->isBuiltinType() && !t->isEnumeralType();
 
-    ASTContext& context = fd->getASTContext();
     // register entry for this field
     data_registration::RegisteredVariable regVar;
-    regVar.listName = listName;
-    regVar.setName(fd->getName().str());
-    if (parent != nullptr)
-    {
-        regVar.setParent(parent);
-    }
+    regVar.update(fd, listName, parent);
 
-    if (isBuiltIn)
-    {
-        if (const clang::BuiltinType* bit = t->getAs<clang::BuiltinType>())
-        {
-            clang::PrintingPolicy pp(context.getLangOpts());
-            regVar.typeName = bit->getName(pp).str();
-        }
-    }
-    else if (t->isEnumeralType())
-    {
-        if (const clang::EnumType* et = t->getAs<clang::EnumType>())
-        {
-            regVar.enumName = et->getAsTagDecl()->getNameAsString();
-            // add enumerated values as convention to demonstrate reading enum
-            /// FIXME correct registration code
-            std::string enumConvention      = "";
-            const clang::EnumDecl* enumDecl = et->getDecl();
-            std::stringstream ss;
-            ss << "{\nstd::vector<std::pair<std::wstring, int>> entryList = \n{\n";
-            for (auto it = enumDecl->enumerator_begin(); it != enumDecl->enumerator_end(); it++)
-            {
-                enumConvention += it->getNameAsString() + "(" + std::to_string(it->getInitVal().getSExtValue()) + ") ";
-                ss << "  {L\"" << it->getNameAsString() << "\", " << std::to_string(it->getInitVal().getSExtValue()) << "},\n";
-            }
-            ss << "}; // " << regVar.enumName << "\n}\n";
-            Writer::get().bufferEnum(ss.str());
-            regVar.convention = enumConvention;
-        }
-    }
-    else
-    {
-        regVar.typeName = typeRecord->getNameAsString();
-    }
+    if (m_context != nullptr)
+        m_context->registerEnum(regVar.enumName, regVar.getEnumRegistrationCode());
 
-    if (auto comment = context.getLocalCommentForDeclUncached(fd))
+    if (regVar.isBuiltIn || regVar.isEnum)
     {
-        readComments(comment, context, regVar);
+        // simplest scenario where array doesn't require additional handling
+        Writer::get().bufferRegister(regVar.getRegistrationCode());
     }
-    if (regVar.units == data_registration::INHERIT_UNIT && parent != nullptr)
+    else if (regVar.isStruct || regVar.isClass)
     {
-        regVar.units = parent->units;
-    }
-
-    if (isCompoundType)
-    {
-        Writer::get().bufferRegister(regVar.dumpStr());
+        registerStructClass(listName, fd, &regVar, regVar.isArray);
+        /*
+        /// MIGRATED
+        Writer::get().bufferRegister(regVar.getRegistrationCode());
 
         // check for base classes
         const clang::CXXRecordDecl* tcxx = t->getAsCXXRecordDecl();
@@ -116,17 +72,17 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
                 bool canRegisterBase = false;
                 if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_public)
                 {
-                    ss << " is public\n";
+                    ss << " is public";
                     canRegisterBase = true;
                 }
                 else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_protected)
                 {
-                    ss << " is protected\n";
+                    ss << " is protected";
                     canRegisterBase = true;
                 }
                 else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_private)
                 {
-                    ss << " is private\n";
+                    ss << " is private";
                     /// TODO would require check for public/protected register method
                 }
                 Logger::get().debug(ss.str());
@@ -135,6 +91,13 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
                     // template base class
                     walkTemplateBase(baseType, &regVar, listName);
 
+                    // apply filter to base classes that are not templates as the fields will be read directly
+                    std::string classBaseName = regVar.className + "::" + baseName;
+                    if (!Config::get().doRegisterImplicitClassField(classBaseName))
+                    {
+                        Logger::get().debug("Excluding filtered class base: " + classBaseName);
+                        continue;
+                    }
                     // fields of the base class
                     for (const auto* childField : baseType->fields())
                     {
@@ -157,14 +120,22 @@ void ClassField::registerFieldDecl(const std::string& listName, const clang::Fie
         Logger::get().debug("Adding child fields for " + _type_str + " " + regVar.typeName);
         for (const auto* childField : typeRecord->fields())
         {
-            /// TODO impose filter so member variables that are junk are avoided IFF this is a class (not struct)
+            if (regVar.isClass)
+            {
+                std::string classFieldName = regVar.className + "::" + childField->getName().str();
+                if (!Config::get().doRegisterImplicitClassField(classFieldName))
+                {
+                    Logger::get().debug("Excluding filtered class field: " + classFieldName);
+                    continue;
+                }
+            }
             registerFieldDecl(listName, childField, &regVar);
         }
+        */
     }
     else
     {
-        regVar.isBasicType = true;
-        Writer::get().bufferRegister(regVar.dumpStr());
+        Logger::get().error("Unexpected conditional encountered!");
     }
 }
 
@@ -179,19 +150,97 @@ void ClassField::walkTemplateBase(const clang::RecordDecl* baseType, const Regis
                 continue;
 
             const clang::RecordDecl* ctsdBaseType = btp->getAsRecordDecl();
-            /// HACK check if this is to be registered
             /// FIXME needs to be instance class name
             std::string qualName = parent->typeName + "::" + ctsdBaseType->getNameAsString();
             Logger::get().debug("CTSD BASE: " + qualName);
-            // FIXME FILTER CHECK if (cfg.doRegister_classField(qualName))
-            // FIXME FILTER CHECK {
+            /// TODO apply class filters to the template base (require instance not template class name)
             for (const auto* baseField : ctsdBaseType->fields())
             {
-                // spDataRegister p = std::make_shared<ClassField>(baseField);
-                // m_context.add(p, qualName);
                 registerFieldDecl(listName, baseField, parent);
             }
-            // }
         }
+    }
+}
+
+void ClassField::registerStructClass(const std::string& listName, const clang::FieldDecl* fd, const RegisteredVariable* parent,
+                                     bool isArray)
+{
+    Writer::get().bufferRegister(parent->getRegistrationCode());
+
+    const clang::QualType qt            = fd->getType();
+    const clang::Type* t                = qt.getTypePtr();
+    const clang::RecordDecl* typeRecord = t->getAsRecordDecl();
+
+    // check for base classes
+    const clang::CXXRecordDecl* tcxx = t->getAsCXXRecordDecl();
+    if (tcxx->getNumBases() > 0)
+    {
+        for (const auto itr : tcxx->bases())
+        {
+            const clang::RecordDecl* baseType = itr.getType().getTypePtr()->getAsRecordDecl();
+            std::string baseName              = baseType->getNameAsString();
+            std::stringstream ss;
+            ss << "base: " << baseName;
+            bool canRegisterBase = false;
+            if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_public)
+            {
+                ss << " is public";
+                canRegisterBase = true;
+            }
+            else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_protected)
+            {
+                ss << " is protected";
+                canRegisterBase = true;
+            }
+            else if (itr.getAccessSpecifierAsWritten() == clang::AccessSpecifier::AS_private)
+            {
+                ss << " is private";
+                /// TODO would require check for public/protected register method
+            }
+            Logger::get().debug(ss.str());
+            if (canRegisterBase)
+            {
+                // template base class
+                walkTemplateBase(baseType, parent, listName);
+
+                // apply filter to base classes that are not templates as the fields will be read directly
+                std::string classBaseName = parent->className + "::" + baseName;
+                if (!Config::get().doRegisterImplicitClassField(classBaseName))
+                {
+                    Logger::get().debug("Excluding filtered class base: " + classBaseName);
+                    continue;
+                }
+                // fields of the base class
+                for (const auto* childField : baseType->fields())
+                {
+                    registerFieldDecl(listName, childField, parent);
+                }
+            }
+        }
+    }
+
+    // traverse the children
+    std::string _type_str = "(unk)";
+    if (t->isStructureType())
+    {
+        _type_str = "(struct)";
+    }
+    else if (t->isClassType())
+    {
+        _type_str = "(class)";
+    }
+    Logger::get().debug("Adding child fields for " + _type_str + " " + parent->typeName);
+    for (const auto* childField : typeRecord->fields())
+    {
+        if (parent->isClass)
+        {
+            std::string classFieldName = parent->className + "::" + childField->getName().str();
+            if (!Config::get().doRegisterImplicitClassField(classFieldName))
+            {
+                Logger::get().debug("Excluding filtered class field: " + classFieldName);
+                continue;
+            }
+        }
+        registerFieldDecl(listName, childField, parent);
     }
 }

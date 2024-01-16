@@ -17,6 +17,7 @@ list(APPEND HEADERS
 
     ${CMAKE_CURRENT_LIST_DIR}/Logger.h
     ${CMAKE_CURRENT_LIST_DIR}/Writer.h
+    ${CMAKE_CURRENT_LIST_DIR}/str_utils.h
 
 )
 
@@ -36,4 +37,5 @@ list(APPEND SOURCES
 
     ${CMAKE_CURRENT_LIST_DIR}/Logger.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Writer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/str_utils.cpp
 )
