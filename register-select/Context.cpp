@@ -12,6 +12,9 @@ Context::Context()
     m_enumIds.clear();
 }
 
+// TODO need the generate list code (should return pointer for this action)
+// TODO cmake pass includes
+// TODO filters for ignoring certain includes? (speed up build)
 void Context::generate(const Config& config)
 {
     std::string out_file = config.outputFileName;

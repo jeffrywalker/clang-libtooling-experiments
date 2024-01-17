@@ -11,6 +11,7 @@
 namespace data_registration
 {
     /// root owner of writing data registration code
+    /// TODO consider using a rewriter to support updating existing method TheRewriter
     class Context
     {
             public:
